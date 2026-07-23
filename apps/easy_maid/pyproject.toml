@@ -1,0 +1,23 @@
+[project]
+name = "easy_maid"
+authors = [
+    { name = "Easy Maid Service", email = "trecto28@gmail.com" }
+]
+description = "Cleaning-company back-office and customer portal on Frappe/ERPNext."
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    # Runtime deps beyond Frappe/ERPNext go here. Keep minimal.
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=15.0.0,<17.0.0"
+erpnext = ">=15.0.0,<17.0.0"
+
+[tool.flit.module]
+name = "easy_maid"

@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  openspec-validate:
+    name: OpenSpec validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install OpenSpec
+        run: npm install -g @fission-ai/openspec@latest
+      - name: Validate all changes and specs (strict)
+        run: openspec validate --all --strict
+
+  yaml-lint:
+    name: YAML lint (k8s manifests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yamllint
+        run: pipx install yamllint
+      - name: Lint deploy manifests (relaxed)
+        run: |
+          if compgen -G "deploy/**/*.yaml" > /dev/null; then
+            yamllint -d relaxed deploy
+          else
+            echo "No manifests yet — skipping."
+          fi

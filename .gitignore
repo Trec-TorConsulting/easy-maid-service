@@ -1,0 +1,33 @@
+# Python / Frappe
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+*.log
+
+# Node / frontend
+node_modules/
+dist-frontend/
+.vite/
+*.tsbuildinfo
+
+# Local tooling venv (asset generation only)
+.venv-assets/
+.venv/
+venv/
+
+# Secrets — NEVER commit real values
+*.secret.yaml
+secrets.yaml
+.env
+.env.*
+!*.example.yaml
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

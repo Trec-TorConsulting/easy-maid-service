@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: easymaid
+  labels:
+    app.kubernetes.io/part-of: easy-maid-service
+    # Isolated from the existing `frappe` namespace — do not cross-reference it.

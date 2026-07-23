@@ -1,0 +1,55 @@
+schema: spec-driven
+
+context: |
+  Project: "Easy Maid Service" — a residential/commercial cleaning company back-office
+  and customer portal built on a NEW, SEPARATE Frappe + ERPNext instance.
+
+  IMPORTANT: Do NOT touch or reuse the existing Frappe server (namespace `frappe`,
+  site client.trector.com). This is a brand-new, isolated instance.
+
+  Tech stack & platform:
+  - Frappe Framework + ERPNext, image tag `frappe/erpnext:version-16` (align to existing cluster).
+  - Custom Frappe app: `easy_maid` (snake_case) layered on top of ERPNext.
+  - Frontend: custom Frappe app pages using Frappe UI (Vue) — a single place for
+    Owners/Admins, Clients/Customers, and Employees/Cleaners.
+  - Database: MariaDB 10.11. Cache: Redis 7.2 (separate cache/queue/socketio).
+  - Deployment: K3s homelab cluster via raw Kubernetes manifests (NOT Helm).
+    Manifests live IN THIS repo (MaidService).
+  - Namespace: `easymaid` (new/isolated).
+  - Ingress: Traefik, hostname `easymaid.trector.com`, TLS via cert resolver
+    `letsencrypt` (Let's Encrypt + Cloudflare DNS). Base domain trector.com.
+  - Storage: Longhorn (default StorageClass). RWX for sites PVC, RWO for DB.
+  - Node scheduling: EXCLUDE node05 (gpu-only) and node06 (video/tpu) via nodeAffinity.
+  - Local registry `registry.registry:5000` (in-cluster) / NodePort 30500 for custom images.
+
+  Business domain (cleaning company). Reuse NATIVE ERPNext wherever possible; add
+  custom DocTypes in `easy_maid` only where ERPNext lacks native support:
+  - Leads & quoting: native CRM — web-to-lead -> Lead -> Opportunity -> Quotation.
+  - Bookings & recurring visits: one-time + recurring (weekly/biweekly/monthly).
+    Native Subscription/Sales Order for recurring billing; custom Booking/Visit
+    DocTypes for the service schedule.
+  - Scheduling & dispatch: assign cleaners to jobs, crew calendar, mark complete.
+    ERPNext has NO native field-service dispatch — implement via custom DocTypes.
+  - Invoicing & payments: native Accounts (bookkeeping) + Sales Invoice + online
+    Payment Entry/Payment Gateway.
+  - Employee mgmt & payroll: native ERPNext HR (Employee, Shift, Payroll).
+  - Native Appointment Booking may be used for consultations/estimates.
+
+  Roles (day one): Owners/Admins (full dashboard + bookkeeping + reports),
+  Clients/Customers (book/manage cleanings, invoices, payments),
+  Employees/Cleaners (see assigned jobs, schedule, mark complete).
+
+  Principles:
+  - Always tell the truth; if ERPNext lacks a capability, state it and design the
+    minimal custom addition rather than pretending it exists.
+  - Prefer native ERPNext modules over custom code.
+
+rules:
+  proposal:
+    - Clearly separate what is NATIVE ERPNext vs what requires a custom DocType/app.
+    - Include a "Non-goals" section (e.g., features deferred past day one like reviews/feedback).
+  design:
+    - Document DocType data models, ERPNext module mapping, roles/permissions, and
+      the Kubernetes deployment topology (namespace easymaid, Traefik, Longhorn).
+  tasks:
+    - Order tasks so infrastructure/site bring-up precedes app/customization work.

@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Easy Maid Service — isolated ERPNext instance (namespace: easymaid)
+# Add resources here as they are created. Keep ordering sensible:
+# namespace -> config/secrets -> data (mariadb/redis) -> app -> ingress -> jobs.
+namespace: easymaid
+
+resources:
+  - namespace.yaml
+  # - configmap.yaml
+  # - secret.yaml            # from secret.example.yaml — real values NOT committed
+  # - networkpolicy.yaml
+  # - mariadb.yaml
+  # - redis-cache.yaml
+  # - redis-queue.yaml
+  # - redis-socketio.yaml
+  # - pvc-sites.yaml
+  # - frappe-python.yaml
+  # - frappe-socketio.yaml
+  # - frappe-worker.yaml
+  # - frappe-scheduler.yaml
+  # - ingress.yaml
+  # - site-init-job.yaml
+  # - backup-cronjob.yaml
+  # - pdb.yaml
