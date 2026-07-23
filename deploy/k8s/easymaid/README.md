@@ -25,7 +25,7 @@ retargeted to this namespace/host. See `openspec/changes/bootstrap-easy-maid-erp
 - [x] `frappe-python.yaml` / `frappe-socketio.yaml` / `frappe-worker.yaml` / `frappe-scheduler.yaml`
 - [x] `ingress.yaml` — Traefik for `easymaid.trector.com`
 - [x] `site-init-job.yaml` — `bench new-site … --install-app erpnext --install-app easy_maid`
-- [ ] `backup-cronjob.yaml`
+- [x] `backup-cronjob.yaml`
 - [x] `pdb.yaml`
 
 ## Acceptance

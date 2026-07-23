@@ -24,34 +24,34 @@ required_apps = ["erpnext"]
 # The recurring-visit generator MUST be idempotent (unique per Booking + date).
 # Implement in easy_maid/easy_maid/tasks.py -> generate_recurring_visits().
 # ---------------------------------------------------------------------------
-# scheduler_events = {
-#     "daily": [
-#         "easy_maid.easy_maid.tasks.generate_recurring_visits",
-#     ],
-# }
+scheduler_events = {
+	"daily": [
+		"easy_maid.easy_maid.tasks.generate_recurring_visits",
+	],
+}
 
 # ---------------------------------------------------------------------------
 # Permission scoping
 # Clients see only their own records; cleaners see only assigned visits.
 # Implement query conditions + has_permission hooks per capability specs.
 # ---------------------------------------------------------------------------
-# permission_query_conditions = {
-#     "Service Visit": "easy_maid.easy_maid.permissions.service_visit_query",
-#     "Booking": "easy_maid.easy_maid.permissions.booking_query",
-# }
-# has_permission = {
-#     "Service Visit": "easy_maid.easy_maid.permissions.service_visit_has_permission",
-# }
+permission_query_conditions = {
+	"Service Visit": "easy_maid.easy_maid.permissions.service_visit_query",
+	"Booking": "easy_maid.easy_maid.permissions.booking_query",
+}
+has_permission = {
+	"Service Visit": "easy_maid.easy_maid.permissions.service_visit_has_permission",
+}
 
 # ---------------------------------------------------------------------------
 # Document events (e.g., enforce the 24-hour cancel/reschedule policy)
 # ---------------------------------------------------------------------------
-# doc_events = {
-#     "Service Visit": {
-#         "before_cancel": "easy_maid.easy_maid.booking_policy.enforce_24h_notice",
-#         "validate": "easy_maid.easy_maid.booking_policy.validate_reschedule_window",
-#     },
-# }
+doc_events = {
+	"Service Visit": {
+		"before_cancel": "easy_maid.easy_maid.booking_policy.enforce_24h_notice",
+		"validate": "easy_maid.easy_maid.booking_policy.validate_reschedule_window",
+	},
+}
 
 # ---------------------------------------------------------------------------
 # Website / frontend (Frappe UI Vue app is served from www/ or a bundled route)

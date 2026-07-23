@@ -54,22 +54,22 @@
 
 ## 8. Bookings & recurring visits (custom DocTypes)
 
-- [ ] 8.1 Create `Booking` DocType (Customer, Address, service Items, price, one-time date or recurrence rule, links to Sales Order/Subscription)
-- [ ] 8.2 Create `Service Visit` DocType (Booking link, scheduled window, status, completion timestamp, notes)
-- [ ] 8.3 Implement recurrence rule fields (frequency/interval/start/end-or-count) with validation
-- [ ] 8.4 Implement idempotent scheduled generator that materializes future Service Visits up to a configurable horizon
-- [ ] 8.5 Implement "seed Booking from Sales Order" and cancel-single-visit logic
-- [ ] 8.6 Enforce the 24-hour minimum cancel/reschedule notice server-side (with Owner/Admin override)
-- [ ] 8.7 Unit tests for recurrence generation (no duplicates, correct dates, cancel isolation) and the 24-hour policy
+- [x] 8.1 Create `Booking` DocType (Customer, Address, service Items, price, one-time date or recurrence rule, links to Sales Order/Subscription)
+- [x] 8.2 Create `Service Visit` DocType (Booking link, scheduled window, status, completion timestamp, notes)
+- [x] 8.3 Implement recurrence rule fields (frequency/interval/start/end-or-count) with validation
+- [x] 8.4 Implement idempotent scheduled generator that materializes future Service Visits up to a configurable horizon
+- [x] 8.5 Implement "seed Booking from Sales Order" and cancel-single-visit logic
+- [x] 8.6 Enforce the 24-hour minimum cancel/reschedule notice server-side (with Owner/Admin override)
+- [x] 8.7 Unit tests for recurrence generation (no duplicates, correct dates, cancel isolation) and the 24-hour policy
 - **Acceptance:** unit tests pass; a weekly Booking generates correct non-duplicate visits; a client change <24h before start is rejected server-side.
 
 ## 9. Scheduling & dispatch (custom)
 
-- [ ] 9.1 Create `Crew Assignment` (Employee + role) on Service Visit with overlap/double-booking validation
-- [ ] 9.2 Build the dispatch board view (day/range, grouped by status/cleaner, highlight unassigned)
-- [ ] 9.3 Build the crew calendar filterable by cleaner and status
-- [ ] 9.4 Implement job start/complete flow (status + completion timestamp; mark eligible for invoicing)
-- [ ] 9.5 Permission tests: only assigned cleaner can change a visit's status
+- [x] 9.1 Create `Crew Assignment` (Employee + role) on Service Visit with overlap/double-booking validation
+- [x] 9.2 Build the dispatch board view (day/range, grouped by status/cleaner, highlight unassigned)
+- [x] 9.3 Build the crew calendar filterable by cleaner and status
+- [x] 9.4 Implement job start/complete flow (status + completion timestamp; mark eligible for invoicing)
+- [x] 9.5 Permission tests: only assigned cleaner can change a visit's status
 - **Acceptance:** unassigned visits are visible on the dispatch board; assigning a conflicting cleaner is flagged; a non-assigned cleaner is denied status changes.
 
 ## 10. ERPNext cleaning-company configuration (fixtures)
@@ -121,7 +121,7 @@
 
 - [ ] 15.1 Confirm all secrets are in Kubernetes Secrets/site config (nothing sensitive in git)
 - [ ] 15.2 Verify least-privilege permissions: clients/cleaners see only their own records
-- [ ] 15.3 Add scheduled DB + files backup CronJob with retention
+- [x] 15.3 Add scheduled DB + files backup CronJob with retention
 - [ ] 15.4 Confirm PDBs and node affinity; run a disruption/restore drill
 - [ ] 15.5 End-to-end smoke test of all capabilities against `easymaid.trector.com`
 - [ ] 15.6 Confirm the existing `frappe` instance/site is unaffected

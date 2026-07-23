@@ -22,5 +22,5 @@ resources:
   - frappe-scheduler.yaml
   - ingress.yaml
   - site-init-job.yaml
+  - backup-cronjob.yaml
   - pdb.yaml
-  # - backup-cronjob.yaml

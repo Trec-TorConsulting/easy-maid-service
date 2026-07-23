@@ -1,0 +1,131 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: easymaid-backups-pvc
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: backups
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: easymaid-mariadb-backup
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: backups
+spec:
+  schedule: "0 3 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                    - node05
+                    - node06
+          containers:
+          - name: mariadb-backup
+            image: mariadb:10.11
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              TS=$(date +%Y%m%d-%H%M%S)
+              FILE="/backups/db/easymaid-${TS}.sql.gz"
+              mkdir -p /backups/db
+              mysqldump -h mariadb -u root -p"${DB_ROOT_PASSWORD}" --databases "${DB_NAME}" | gzip > "${FILE}"
+              find /backups/db -type f -name '*.sql.gz' -mtime +14 -delete
+            env:
+            - name: DB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: easymaid-secrets
+                  key: mariadb-root-password
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: easymaid-secrets
+                  key: mariadb-database
+            volumeMounts:
+            - name: backups
+              mountPath: /backups
+          volumes:
+          - name: backups
+            persistentVolumeClaim:
+              claimName: easymaid-backups-pvc
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: easymaid-sites-backup
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: backups
+spec:
+  schedule: "30 3 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                    - node05
+                    - node06
+          containers:
+          - name: sites-backup
+            image: frappe/erpnext:version-16
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              TS=$(date +%Y%m%d-%H%M%S)
+              mkdir -p /backups/sites
+              tar -czf "/backups/sites/easymaid-sites-${TS}.tar.gz" -C /home/frappe/frappe-bench sites
+              find /backups/sites -type f -name '*.tar.gz' -mtime +14 -delete
+            volumeMounts:
+            - name: sites
+              mountPath: /home/frappe/frappe-bench/sites
+            - name: backups
+              mountPath: /backups
+          volumes:
+          - name: sites
+            persistentVolumeClaim:
+              claimName: easymaid-sites-pvc
+          - name: backups
+            persistentVolumeClaim:
+              claimName: easymaid-backups-pvc
