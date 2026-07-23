@@ -1,0 +1,16 @@
+# Reuse this snippet on ALL workloads in easymaid.
+# Required by spec: exclude node05 (gpu-only) and node06 (video/tpu-only).
+#
+# spec:
+#   template:
+#     spec:
+#       affinity:
+#         nodeAffinity:
+#           requiredDuringSchedulingIgnoredDuringExecution:
+#             nodeSelectorTerms:
+#             - matchExpressions:
+#               - key: kubernetes.io/hostname
+#                 operator: NotIn
+#                 values:
+#                 - node05
+#                 - node06

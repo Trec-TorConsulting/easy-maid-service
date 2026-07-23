@@ -16,16 +16,17 @@ retargeted to this namespace/host. See `openspec/changes/bootstrap-easy-maid-erp
 
 ## Files to create (checklist)
 - [x] `namespace.yaml`
-- [ ] `configmap.yaml` — site name, host, CORS, cookie/session config
-- [ ] `secret.example.yaml` — template only; real Secret applied out-of-band
-- [ ] `networkpolicy.yaml` — scope traffic to `easymaid`
-- [ ] `mariadb.yaml` — StatefulSet + Service (Longhorn RWO)
-- [ ] `redis-cache.yaml` / `redis-queue.yaml` / `redis-socketio.yaml`
-- [ ] `pvc-sites.yaml` — Longhorn RWX
-- [ ] `frappe-python.yaml` / `frappe-socketio.yaml` / `frappe-worker.yaml` / `frappe-scheduler.yaml`
-- [ ] `ingress.yaml` — Traefik for `easymaid.trector.com`
-- [ ] `site-init-job.yaml` — `bench new-site … --install-app erpnext --install-app easy_maid`
-- [ ] `backup-cronjob.yaml`, `pdb.yaml`
+- [x] `configmap.yaml` — site name, host, CORS, cookie/session config
+- [x] `secret.example.yaml` — template only; real Secret applied out-of-band
+- [x] `networkpolicy.yaml` — scope traffic to `easymaid`
+- [x] `mariadb.yaml` — StatefulSet + Service (Longhorn RWO)
+- [x] `redis-cache.yaml` / `redis-queue.yaml` / `redis-socketio.yaml`
+- [x] `pvc-sites.yaml` — Longhorn RWX
+- [x] `frappe-python.yaml` / `frappe-socketio.yaml` / `frappe-worker.yaml` / `frappe-scheduler.yaml`
+- [x] `ingress.yaml` — Traefik for `easymaid.trector.com`
+- [x] `site-init-job.yaml` — `bench new-site … --install-app erpnext --install-app easy_maid`
+- [ ] `backup-cronjob.yaml`
+- [x] `pdb.yaml`
 
 ## Acceptance
 - `kubectl apply -k deploy/k8s/easymaid` succeeds (dry-run: `kubectl apply -k . --dry-run=server`).

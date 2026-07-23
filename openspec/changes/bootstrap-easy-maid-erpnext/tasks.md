@@ -9,40 +9,40 @@
 ## 2. Kubernetes infrastructure (namespace easymaid)
 
 - [x] 2.1 Write `namespace.yaml` for `easymaid`
-- [ ] 2.2 Write `secret.example.yaml` (DB root/app, admin password, gateway keys) — real values NOT committed
-- [ ] 2.3 Write `configmap.yaml` (site name `easymaid.trector.com`, host, CORS, cookie/session config)
-- [ ] 2.4 Write `networkpolicy.yaml` scoping traffic to the `easymaid` namespace
-- [ ] 2.5 Add `nodeAffinity` snippet excluding `node05` and `node06` to all workloads
+- [x] 2.2 Write `secret.example.yaml` (DB root/app, admin password, gateway keys) — real values NOT committed
+- [x] 2.3 Write `configmap.yaml` (site name `easymaid.trector.com`, host, CORS, cookie/session config)
+- [x] 2.4 Write `networkpolicy.yaml` scoping traffic to the `easymaid` namespace
+- [x] 2.5 Add `nodeAffinity` snippet excluding `node05` and `node06` to all workloads
 - **Acceptance:** `kubectl apply -k deploy/k8s/easymaid --dry-run=server` succeeds; no manifest references the `frappe` namespace; every workload has the node05/node06 exclusion.
 
 ## 3. Data & cache services
 
-- [ ] 3.1 Write MariaDB 10.11 `StatefulSet` + `Service` with a Longhorn RWO volumeClaimTemplate
-- [ ] 3.2 Write three Redis 7.2 deployments + services (cache, queue, socketio)
-- [ ] 3.3 Write `pvc-sites.yaml` — Longhorn RWX PVC for the shared sites directory
-- [ ] 3.4 Add PDBs for MariaDB and (later) the web deployment
+- [x] 3.1 Write MariaDB 10.11 `StatefulSet` + `Service` with a Longhorn RWO volumeClaimTemplate
+- [x] 3.2 Write three Redis 7.2 deployments + services (cache, queue, socketio)
+- [x] 3.3 Write `pvc-sites.yaml` — Longhorn RWX PVC for the shared sites directory
+- [x] 3.4 Add PDBs for MariaDB and (later) the web deployment
 - **Acceptance:** MariaDB and 3 Redis services reach Ready; sites PVC binds as RWX on `longhorn`.
 
 ## 4. Frappe/ERPNext workloads
 
-- [ ] 4.1 Write `frappe-python` (web/API, port 8000) deployment mounting the sites PVC
-- [ ] 4.2 Write `frappe-socketio` (port 9000) deployment
-- [ ] 4.3 Write worker deployment(s) (default/short queues) and the scheduler
-- [ ] 4.4 Write Services for web and socketio
-- [ ] 4.5 Add PDB for the web deployment
+- [x] 4.1 Write `frappe-python` (web/API, port 8000) deployment mounting the sites PVC
+- [x] 4.2 Write `frappe-socketio` (port 9000) deployment
+- [x] 4.3 Write worker deployment(s) (default/short queues) and the scheduler
+- [x] 4.4 Write Services for web and socketio
+- [x] 4.5 Add PDB for the web deployment
 - **Acceptance:** web pod serves HTTP 200 on `:8000` in-cluster; socketio, a worker, and the scheduler are Running.
 
 ## 5. Site bootstrap & app install
 
-- [ ] 5.1 App-install strategy (RESOLVED): install `easy_maid` via `bench get-app` from the repo onto the stock `frappe/erpnext:version-16` image at site-init (custom image to `registry.registry:5000` only if needed later)
-- [ ] 5.2 Write idempotent `site-init-job.yaml`: `bench new-site easymaid.trector.com … --install-app erpnext --install-app easy_maid --set-default`
+- [x] 5.1 App-install strategy (RESOLVED): install `easy_maid` via `bench get-app` from the repo onto the stock `frappe/erpnext:version-16` image at site-init (custom image to `registry.registry:5000` only if needed later)
+- [x] 5.2 Write idempotent `site-init-job.yaml`: `bench new-site easymaid.trector.com … --install-app erpnext --install-app easy_maid --set-default`
 - [ ] 5.3 Verify the site comes up and both `erpnext` and `easy_maid` are installed
 - **Acceptance:** `bench --site easymaid.trector.com list-apps` shows `frappe`, `erpnext`, `easy_maid`; re-running the Job does not error or duplicate the site.
 
 ## 6. Ingress & TLS
 
-- [ ] 6.1 Write Traefik `ingress.yaml` for `easymaid.trector.com` (`/` → web:8000, `/socket.io` → socketio:9000)
-- [ ] 6.2 Apply `letsencrypt` cert resolver + HTTP→HTTPS redirect middleware
+- [x] 6.1 Write Traefik `ingress.yaml` for `easymaid.trector.com` (`/` → web:8000, `/socket.io` → socketio:9000)
+- [x] 6.2 Apply `letsencrypt` cert resolver + HTTP→HTTPS redirect middleware
 - [ ] 6.3 Verify valid TLS cert and end-to-end HTTPS + websocket connectivity
 - **Acceptance:** `https://easymaid.trector.com` loads with a valid Let's Encrypt cert; HTTP redirects to HTTPS; websocket connects.
 

@@ -1,0 +1,137 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frappe-python
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: python
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+  selector:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/component: python
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frappe-python
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: python
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: python
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: easymaid
+        app.kubernetes.io/component: python
+    spec:
+      initContainers:
+      - name: seed-sites
+        image: frappe/erpnext:version-16
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c", "cp -a /home/frappe/frappe-bench/sites/. /mnt/sites/ || true"]
+        volumeMounts:
+        - name: sites
+          mountPath: /mnt/sites
+      - name: write-common-config
+        image: busybox:1.36
+        command: ["/bin/sh", "-c", "cp /config/common_site_config.json /mnt/sites/common_site_config.json"]
+        volumeMounts:
+        - name: common-config
+          mountPath: /config
+        - name: sites
+          mountPath: /mnt/sites
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - node05
+                - node06
+      containers:
+      - name: frappe-python
+        image: frappe/erpnext:version-16
+        imagePullPolicy: IfNotPresent
+        command:
+        - bash
+        - -c
+        - |
+          mkdir -p /home/frappe/logs
+          cd /home/frappe/frappe-bench
+          exec /home/frappe/frappe-bench/env/bin/gunicorn \
+            --bind 0.0.0.0:8000 \
+            --workers 4 \
+            --timeout 120 \
+            --graceful-timeout 30 \
+            --worker-tmp-dir /dev/shm \
+            --chdir /home/frappe/frappe-bench/sites \
+            frappe.app:application
+        envFrom:
+        - configMapRef:
+            name: easymaid-common-config
+        env:
+        - name: FRAPPE_SITE_NAME_HEADER
+          valueFrom:
+            secretKeyRef:
+              name: easymaid-secrets
+              key: site-name
+        ports:
+        - name: http
+          containerPort: 8000
+        volumeMounts:
+        - name: sites
+          mountPath: /home/frappe/frappe-bench/sites
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: "2"
+            memory: 2Gi
+        readinessProbe:
+          httpGet:
+            path: /api/method/ping
+            port: http
+            httpHeaders:
+            - name: Host
+              value: easymaid.trector.com
+            - name: X-Frappe-Site-Name
+              value: easymaid.trector.com
+          initialDelaySeconds: 40
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/method/ping
+            port: http
+            httpHeaders:
+            - name: Host
+              value: easymaid.trector.com
+            - name: X-Frappe-Site-Name
+              value: easymaid.trector.com
+          initialDelaySeconds: 90
+          periodSeconds: 20
+      volumes:
+      - name: sites
+        persistentVolumeClaim:
+          claimName: easymaid-sites-pvc
+      - name: common-config
+        configMap:
+          name: easymaid-common-config
+          items:
+          - key: common_site_config.json
+            path: common_site_config.json

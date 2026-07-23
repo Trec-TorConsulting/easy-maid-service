@@ -8,19 +8,19 @@ namespace: easymaid
 
 resources:
   - namespace.yaml
-  # - configmap.yaml
-  # - secret.yaml            # from secret.example.yaml — real values NOT committed
-  # - networkpolicy.yaml
-  # - mariadb.yaml
-  # - redis-cache.yaml
-  # - redis-queue.yaml
-  # - redis-socketio.yaml
-  # - pvc-sites.yaml
-  # - frappe-python.yaml
-  # - frappe-socketio.yaml
-  # - frappe-worker.yaml
-  # - frappe-scheduler.yaml
-  # - ingress.yaml
-  # - site-init-job.yaml
+  - configmap.yaml
+  # - secret.yaml            # generate from secret.example.yaml with real values
+  - networkpolicy.yaml
+  - mariadb.yaml
+  - redis-cache.yaml
+  - redis-queue.yaml
+  - redis-socketio.yaml
+  - pvc-sites.yaml
+  - frappe-python.yaml
+  - frappe-socketio.yaml
+  - frappe-workers.yaml
+  - frappe-scheduler.yaml
+  - ingress.yaml
+  - site-init-job.yaml
+  - pdb.yaml
   # - backup-cronjob.yaml
-  # - pdb.yaml

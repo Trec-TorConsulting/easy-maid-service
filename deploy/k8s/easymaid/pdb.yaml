@@ -1,0 +1,143 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frappe-python-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: python
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: python
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frappe-socketio-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: socketio
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: socketio
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frappe-worker-default-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: worker-default
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: worker-default
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frappe-worker-short-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: worker-short
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: worker-short
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frappe-scheduler-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: scheduler
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: scheduler
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mariadb-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: mariadb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: mariadb
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: redis-cache-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: redis-cache
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: redis-cache
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: redis-queue-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: redis-queue
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: redis-queue
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: redis-socketio-pdb
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: redis-socketio
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: easymaid
+      app.kubernetes.io/component: redis-socketio

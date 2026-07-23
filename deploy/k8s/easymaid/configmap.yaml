@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: easymaid-common-config
+  namespace: easymaid
+  labels:
+    app.kubernetes.io/name: easymaid
+    app.kubernetes.io/part-of: easy-maid-service
+    app.kubernetes.io/component: config
+data:
+  common_site_config.json: |
+    {
+      "auto_migrate": 1,
+      "default_site": "easymaid.trector.com",
+      "db_host": "mariadb",
+      "redis_cache": "redis://redis-cache:6379",
+      "redis_queue": "redis://redis-queue:6379",
+      "redis_socketio": "redis://redis-socketio:6379",
+      "socketio_host": "frappe-socketio",
+      "socketio_port": 9000,
+      "session_cookie_domain": ".trector.com",
+      "cookie_secure": 1,
+      "cookie_samesite": "None",
+      "host_name": "https://easymaid.trector.com",
+      "allow_cors": [
+        "https://easymaid.trector.com",
+        "https://www.easymaid.trector.com"
+      ],
+      "server_script_enabled": 1
+    }
