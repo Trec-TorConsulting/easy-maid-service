@@ -32,4 +32,4 @@ resources:
 images:
   - name: frappe/erpnext
     newName: 192.168.4.10:30500/easy-maid-service/bench
-    newTag: "0.0.4"
+    newTag: "0.0.5"

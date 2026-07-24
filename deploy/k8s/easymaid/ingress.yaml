@@ -15,13 +15,35 @@ spec:
   ingressClassName: traefik
   tls:
   - hosts:
+    - maidurday.com
+    - www.maidurday.com
     - easymaid.trector.com
   rules:
-  - host: easymaid.trector.com
+  - host: maidurday.com
     http:
       paths:
       # nginx frontend serves /assets and /files as static, and proxies
       # dynamic requests to gunicorn (:8000) and /socket.io to socketio (:9000).
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frappe-nginx
+            port:
+              number: 8080
+  - host: www.maidurday.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frappe-nginx
+            port:
+              number: 8080
+  - host: easymaid.trector.com
+    http:
+      paths:
       - path: /
         pathType: Prefix
         backend:

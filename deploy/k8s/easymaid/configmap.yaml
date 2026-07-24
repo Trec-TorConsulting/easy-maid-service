@@ -18,13 +18,13 @@ data:
       "redis_socketio": "redis://redis-socketio:6379",
       "socketio_host": "0.0.0.0",
       "socketio_port": 9000,
-      "session_cookie_domain": ".trector.com",
       "cookie_secure": 1,
       "cookie_samesite": "None",
-      "host_name": "https://easymaid.trector.com",
+      "host_name": "https://maidurday.com",
       "allow_cors": [
-        "https://easymaid.trector.com",
-        "https://www.easymaid.trector.com"
+        "https://maidurday.com",
+        "https://www.maidurday.com",
+        "https://easymaid.trector.com"
       ],
       "server_script_enabled": 1
     }

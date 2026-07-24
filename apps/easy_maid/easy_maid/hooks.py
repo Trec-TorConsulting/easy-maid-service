@@ -1,6 +1,6 @@
 app_name = "easy_maid"
-app_title = "Easy Maid"
-app_publisher = "Easy Maid Service"
+app_title = "Maidurday Cleaning Service"
+app_publisher = "Maidurday Cleaning Service"
 app_description = "Cleaning-company back-office and customer portal on Frappe/ERPNext."
 app_email = "trecto28@gmail.com"
 app_license = "MIT"
@@ -97,8 +97,8 @@ add_to_apps_screen = [
 	{
 		"name": "easy_maid",
 		"logo": "/assets/easy_maid/brand/logo-mark.svg",
-		"title": "Easy Maid",
-		"route": "/app/easy-maid",
+		"title": "Maidurday",
+		"route": "/app/maidurday",
 	}
 ]
 

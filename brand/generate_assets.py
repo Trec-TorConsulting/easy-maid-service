@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate Easy Maid Service starter brand assets (raster).
+"""Generate Maidurday Cleaning Service starter brand assets (raster).
 
 Run:  ../.venv-assets/bin/python generate_assets.py
 Produces PNG icons + favicon.ico from a single supersampled badge mark.
@@ -81,9 +81,9 @@ def make_mark(size):
     img.paste(badge, (0, 0), mask)
     draw = ImageDraw.Draw(img)
 
-    # Monogram "EM"
-    font = load_font(int(s * 0.40))
-    text = "EM"
+    # Monogram "M"
+    font = load_font(int(s * 0.52))
+    text = "M"
     bbox = draw.textbbox((0, 0), text, font=font)
     tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
     tx = (s - tw) / 2 - bbox[0]
@@ -103,10 +103,10 @@ def make_wordmark():
     gap = 40
     pad = 36
 
-    f1 = load_font(132)
-    f2 = load_font(60)
-    line1 = "Easy Maid"
-    line2 = "S E R V I C E"
+    f1 = load_font(120)
+    f2 = load_font(50)
+    line1 = "Maidurday"
+    line2 = "CLEANING SERVICE"
 
     tmp = Image.new("RGBA", (10, 10))
     d = ImageDraw.Draw(tmp)
@@ -121,8 +121,8 @@ def make_wordmark():
 
     draw = ImageDraw.Draw(canvas)
     text_x = pad + mark_size + gap
-    draw.text((text_x, H // 2 - 128), line1, font=f1, fill=TEAL_TEXT)
-    draw.text((text_x, H // 2 + 40), line2, font=f2, fill=SLATE)
+    draw.text((text_x, H // 2 - 116), line1, font=f1, fill=TEAL_TEXT)
+    draw.text((text_x, H // 2 + 34), line2, font=f2, fill=SLATE)
     return canvas
 
 

@@ -4,7 +4,8 @@ import frappe
 from frappe import _
 from frappe.utils import getdate, today
 
-COMPANY = "Easy Maid Service"
+COMPANY = "Maidurday Cleaning Service"
+BRAND = COMPANY
 ABBR = "EMS"
 CURRENCY = "USD"
 COUNTRY = "United States"
@@ -402,13 +403,16 @@ def _ensure_navbar_branding():
 
 
 def _ensure_easy_maid_workspace():
-    """Create a public Easy Maid workspace to land on in the Desk."""
+    """Create a public Maidurday workspace to land on in the Desk."""
     if not frappe.db.exists("DocType", "Workspace"):
         return False
     try:
         import json as _json
 
-        title = "Easy Maid"
+        title = "Maidurday"
+        # Remove any legacy Easy Maid workspace so Maidurday is the sole landing page.
+        if title != "Easy Maid" and frappe.db.exists("Workspace", "Easy Maid"):
+            frappe.delete_doc("Workspace", "Easy Maid", ignore_permissions=True, force=1)
         shortcuts = [
             {"type": "DocType", "link_to": "Booking", "label": "Bookings", "color": "Green"},
             {"type": "DocType", "link_to": "Service Visit", "label": "Service Visits", "color": "Blue"},
@@ -427,7 +431,7 @@ def _ensure_easy_maid_workspace():
         ]
         content = _json.dumps(
             [
-                {"id": "em_header", "type": "header", "data": {"text": "<span class=\"h4\"><b>Easy Maid</b></span>", "col": 12}},
+                {"id": "em_header", "type": "header", "data": {"text": "<span class=\"h4\"><b>Maidurday</b></span>", "col": 12}},
                 {"id": "em_sc_book", "type": "shortcut", "data": {"shortcut_name": "Bookings", "col": 3}},
                 {"id": "em_sc_visit", "type": "shortcut", "data": {"shortcut_name": "Service Visits", "col": 3}},
                 {"id": "em_sc_crew", "type": "shortcut", "data": {"shortcut_name": "Crew Assignments", "col": 3}},
@@ -472,9 +476,9 @@ def _ensure_letter_head(company_name: str):
     content = """
 <div style='font-family:Arial,sans-serif;'>
   <div style='display:flex;align-items:center;gap:10px;'>
-    <img src='/assets/easy_maid/brand/logo-mark.svg' alt='Easy Maid' style='height:34px;' />
+    <img src='/assets/easy_maid/brand/logo-mark.svg' alt='Maidurday' style='height:34px;' />
     <div>
-      <strong>Easy Maid Service</strong><br />
+      <strong>Maidurday Cleaning Service</strong><br />
       New Jersey, USA
     </div>
   </div>
@@ -487,7 +491,7 @@ def _ensure_letter_head(company_name: str):
         head = frappe.get_doc({"doctype": "Letter Head", "letter_head_name": name, "company": company_name})
 
     head.content = content
-    head.footer = "Thank you for choosing Easy Maid Service"
+    head.footer = "Thank you for choosing Maidurday Cleaning Service"
     head.is_default = 1
     if head.is_new():
         head.insert(ignore_permissions=True)

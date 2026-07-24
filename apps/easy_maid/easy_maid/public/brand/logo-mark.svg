@@ -1,11 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Easy Maid logo">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Maidurday Cleaning Service">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5BB07A"/>
-      <stop offset="100%" stop-color="#1E4F3A"/>
+    <linearGradient id="emGreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5BB07A"/>
+      <stop offset="1" stop-color="#1E4F3A"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="256" height="256" rx="60" fill="url(#g)"/>
-  <text x="128" y="150" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="102" fill="#FFFFFF">EM</text>
-  <path d="M192 46 L199 65 L218 61 L200 73 L205 92 L192 78 L179 92 L184 73 L166 61 L185 65 Z" fill="#C6F6D5"/>
+  <rect x="0" y="0" width="512" height="512" rx="123" ry="123" fill="url(#emGreen)"/>
+  <text x="256" y="300" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="238" fill="#FFFFFF">M</text>
+  <!-- mint sparkle -->
+  <path d="M384 92 L399 130 L437 123 L399 146 L410 184 L384 156 L358 184 L369 146 L331 123 L369 130 Z" fill="#C6F6D5"/>
+  <!-- small white sparkle -->
+  <path d="M440 190 L446 206 L462 202 L446 212 L451 228 L440 216 L429 228 L434 212 L418 202 L434 206 Z" fill="#FFFFFF"/>
 </svg>
