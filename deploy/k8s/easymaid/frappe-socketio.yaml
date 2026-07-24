@@ -83,6 +83,10 @@ spec:
           value: "0.0.0.0"
         - name: SOCKETIO_HOST
           value: "0.0.0.0"
+        - name: FRAPPE_SOCKETIO_HOST
+          value: "0.0.0.0"
+        - name: FRAPPE_SOCKETIO_PORT
+          value: "9000"
         ports:
         - name: socketio
           containerPort: 9000

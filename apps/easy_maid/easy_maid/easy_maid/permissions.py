@@ -12,6 +12,11 @@ def _roles(user: str | None = None) -> set[str]:
     return set(frappe.get_roles(user or frappe.session.user))
 
 
+def _employee_for_user(user: str | None = None) -> str | None:
+    target = user or frappe.session.user
+    return frappe.db.get_value("Employee", {"user_id": target}, "name")
+
+
 def booking_query(user=None):
     user = user or frappe.session.user
     roles = _roles(user)
@@ -92,5 +97,65 @@ def service_visit_has_permission(doc, user=None, permission_type=None):
                 },
             )
         )
+
+    return False
+
+
+def employee_query(user=None):
+    user = user or frappe.session.user
+    roles = _roles(user)
+
+    if OWNER_ROLES & roles:
+        return "1=1"
+
+    if CLEANER_ROLES & roles:
+        employee = _employee_for_user(user)
+        if not employee:
+            return "1=0"
+        return f"`tabEmployee`.`name` = {frappe.db.escape(employee)}"
+
+    return "1=0"
+
+
+def employee_has_permission(doc, user=None, permission_type=None):
+    user = user or frappe.session.user
+    roles = _roles(user)
+
+    if OWNER_ROLES & roles:
+        return True
+
+    if CLEANER_ROLES & roles:
+        employee = _employee_for_user(user)
+        return bool(employee and doc.name == employee)
+
+    return False
+
+
+def salary_slip_query(user=None):
+    user = user or frappe.session.user
+    roles = _roles(user)
+
+    if OWNER_ROLES & roles:
+        return "1=1"
+
+    if CLEANER_ROLES & roles:
+        employee = _employee_for_user(user)
+        if not employee:
+            return "1=0"
+        return f"`tabSalary Slip`.`employee` = {frappe.db.escape(employee)}"
+
+    return "1=0"
+
+
+def salary_slip_has_permission(doc, user=None, permission_type=None):
+    user = user or frappe.session.user
+    roles = _roles(user)
+
+    if OWNER_ROLES & roles:
+        return True
+
+    if CLEANER_ROLES & roles:
+        employee = _employee_for_user(user)
+        return bool(employee and doc.employee == employee)
 
     return False

@@ -20,17 +20,12 @@ spec:
   - host: easymaid.trector.com
     http:
       paths:
+      # nginx frontend serves /assets and /files as static, and proxies
+      # dynamic requests to gunicorn (:8000) and /socket.io to socketio (:9000).
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: frappe-python
+            name: frappe-nginx
             port:
-              number: 8000
-      - path: /socket.io
-        pathType: Prefix
-        backend:
-          service:
-            name: frappe-socketio
-            port:
-              number: 9000
+              number: 8080

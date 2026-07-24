@@ -16,7 +16,7 @@ data:
       "redis_cache": "redis://redis-cache:6379",
       "redis_queue": "redis://redis-queue:6379",
       "redis_socketio": "redis://redis-socketio:6379",
-      "socketio_host": "frappe-socketio",
+      "socketio_host": "0.0.0.0",
       "socketio_port": 9000,
       "session_cookie_domain": ".trector.com",
       "cookie_secure": 1,

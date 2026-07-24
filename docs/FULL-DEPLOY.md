@@ -46,6 +46,8 @@ Open a PR into `main` with a thorough description. Required sections:
 - **Screenshots / artifacts** — where relevant (UI, generated assets).
 - **Checklist** — secrets not committed, docs updated, specs/tasks updated.
 
+Use the repository PR template at `.github/pull_request_template.md`.
+
 ```bash
 gh pr create --base main --head feat/<short-description> \
   --title "feat(scope): subject" \
@@ -89,3 +91,11 @@ gh run watch <run-id>
 - [ ] All PR GitHub Actions checks green
 - [ ] Merged to `main` (squash, branch deleted)
 - [ ] Post-merge GitHub Actions monitored and green
+
+## Optional helper
+
+Run a non-destructive preflight before creating a branch/PR:
+
+```bash
+bash scripts/full_deploy_prepare.sh feat/<short-description>
+```

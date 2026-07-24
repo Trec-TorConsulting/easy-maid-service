@@ -74,13 +74,13 @@
 
 ## 10. ERPNext cleaning-company configuration (fixtures)
 
-- [ ] 10.1 Create Company "Easy Maid Service" with currency, fiscal year, and chart of accounts
-- [ ] 10.2 Create service Items (Standard/Deep/Move-In-Out/Recurring/Add-ons) as non-stock with Price List rates
-- [ ] 10.3 Configure a **configurable NJ** Sales Taxes and Charges Template (rate editable without a code deploy)
-- [ ] 10.4 Create Customer Groups (Residential/Commercial) and employee department/designation
-- [ ] 10.5 Define roles & permissions and user-permission scoping for Owner/Client/Cleaner
-- [ ] 10.6 Apply "Easy Maid Service" branding (name, logo placeholder, print formats)
-- [ ] 10.7 Package the above as `easy_maid` fixtures for reproducible setup
+- [x] 10.1 Create Company "Easy Maid Service" with currency, fiscal year, and chart of accounts
+- [x] 10.2 Create service Items (Standard/Deep/Move-In-Out/Recurring/Add-ons) as non-stock with Price List rates
+- [x] 10.3 Configure a **configurable NJ** Sales Taxes and Charges Template (rate editable without a code deploy)
+- [x] 10.4 Create Customer Groups (Residential/Commercial) and employee department/designation
+- [x] 10.5 Define roles & permissions and user-permission scoping for Owner/Client/Cleaner
+- [x] 10.6 Apply "Easy Maid Service" branding (name, logo placeholder, print formats)
+- [x] 10.7 Package the above as `easy_maid` fixtures for reproducible setup
 - **Acceptance:** a fresh site + `bench install-app easy_maid` + fixtures yields the Company, service Items, NJ tax template, groups, and roles without manual steps.
 
 ## 11. Leads & quoting (native CRM)
@@ -92,34 +92,34 @@
 
 ## 12. Invoicing, payments & bookkeeping (native)
 
-- [ ] 12.1 Enable Sales Invoice generation from completed one-time visits
-- [ ] 12.2 Wire recurring invoices via Subscription/recurring Sales Order for recurring Bookings
+- [x] 12.1 Enable Sales Invoice generation from completed one-time visits
+- [x] 12.2 Wire recurring invoices via Subscription/recurring Sales Order for recurring Bookings
 - [ ] 12.3 Configure the **Stripe** Payment Gateway with hosted checkout; record Payment Entry on success (keys/webhook secret in Secrets)
-- [ ] 12.4 Handle payment failure/retry UX and reconciliation to Paid
+- [x] 12.4 Handle payment failure/retry UX and reconciliation to Paid
 - [ ] 12.5 Verify GL postings and financial reports (AR, P&L, GL); enable branded receipt PDF
 - **Acceptance:** a completed visit invoices correctly; a Stripe test payment reconciles the invoice to Paid and posts correct GL entries; AR/P&L reflect it.
 
 ## 13. Employee management & payroll (native HR)
 
-- [ ] 13.1 Configure Employee records with cleaning attributes (skills/certifications, service area)
-- [ ] 13.2 Configure shifts/availability used during dispatch
+- [x] 13.1 Configure Employee records with cleaning attributes (skills/certifications, service area)
+- [x] 13.2 Configure shifts/availability used during dispatch
 - [ ] 13.3 Configure salary structures and run a test payroll (Salary Slips + accounting entries)
 - [ ] 13.4 Verify cleaners cannot view others' payroll data
 - **Acceptance:** a test payroll run produces Salary Slips + accounting entries; a cleaner cannot see another employee's pay.
 
 ## 14. Unified frontend (Frappe UI / Vue)
 
-- [ ] 14.1 Scaffold the Vue SPA in `easy_maid` using Frappe UI with session auth
-- [ ] 14.2 Implement route guards and role-based landing (Owner/Client/Cleaner)
-- [ ] 14.3 Owner dashboard: metrics (upcoming visits, unassigned jobs, revenue/AR) + navigation
-- [ ] 14.4 Client experience: book one-time/recurring, view/reschedule/cancel visits, view/pay invoices
-- [ ] 14.5 Cleaner experience: today's assigned jobs, start/complete actions (mobile-friendly)
-- [ ] 14.6 Apply consistent "Easy Maid Service" branding and responsive layout
+- [x] 14.1 Scaffold the Vue SPA in `easy_maid` using Frappe UI with session auth
+- [x] 14.2 Implement route guards and role-based landing (Owner/Client/Cleaner)
+- [x] 14.3 Owner dashboard: metrics (upcoming visits, unassigned jobs, revenue/AR) + navigation
+- [x] 14.4 Client experience: book one-time/recurring, view/reschedule/cancel visits, view/pay invoices
+- [x] 14.5 Cleaner experience: today's assigned jobs, start/complete actions (mobile-friendly)
+- [x] 14.6 Apply consistent "Easy Maid Service" branding and responsive layout
 - **Acceptance:** each role logs in to its own landing; a client can book + pay; a cleaner can complete a job on mobile; branding is consistent.
 
 ## 15. Security, backups & verification
 
-- [ ] 15.1 Confirm all secrets are in Kubernetes Secrets/site config (nothing sensitive in git)
+- [x] 15.1 Confirm all secrets are in Kubernetes Secrets/site config (nothing sensitive in git)
 - [ ] 15.2 Verify least-privilege permissions: clients/cleaners see only their own records
 - [x] 15.3 Add scheduled DB + files backup CronJob with retention
 - [ ] 15.4 Confirm PDBs and node affinity; run a disruption/restore drill

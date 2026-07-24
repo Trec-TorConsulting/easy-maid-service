@@ -53,27 +53,53 @@ spec:
           set -euo pipefail
           cd /home/frappe/frappe-bench
 
-          if [ -d "sites/${SITE_NAME}" ]; then
+          SITE_DIR="sites/${SITE_NAME}"
+
+          # Recover from interrupted new-site runs that created a partial directory.
+          if [ -d "${SITE_DIR}" ] && [ ! -f "${SITE_DIR}/site_config.json" ]; then
+            echo "Found incomplete site directory ${SITE_DIR}; removing for clean bootstrap"
+            rm -rf "${SITE_DIR}"
+          fi
+
+          if [ -d "${SITE_DIR}" ]; then
             echo "Site ${SITE_NAME} already exists, skipping new-site"
           else
             bench new-site "${SITE_NAME}" \
               --db-root-username root \
               --db-root-password "${DB_ROOT_PASSWORD}" \
               --mariadb-root-password "${DB_ROOT_PASSWORD}" \
+              --mariadb-user-host-login-scope="%" \
               --admin-password "${ADMIN_PASSWORD}" \
-              --install-app erpnext \
-              --set-default
+              --install-app erpnext
           fi
 
           if [ ! -d "apps/easy_maid" ]; then
-            bench get-app easy_maid "${EASY_MAID_APP_REPO_URL}"
+            if echo "${EASY_MAID_APP_REPO_URL}" | grep -q "YOUR_ORG/easy_maid.git"; then
+              echo "Skipping easy_maid get-app: EASY_MAID_APP_REPO_URL is placeholder"
+            else
+              bench get-app easy_maid "${EASY_MAID_APP_REPO_URL}"
+            fi
           fi
 
           if bench --site "${SITE_NAME}" list-apps | grep -qx "easy_maid"; then
             echo "easy_maid already installed on ${SITE_NAME}"
-          else
+          elif [ -d "apps/easy_maid" ]; then
             bench --site "${SITE_NAME}" install-app easy_maid
+          else
+            echo "Skipping easy_maid install: app source not available"
           fi
+
+          # Materialize a single, concrete copy of built assets onto the shared
+          # RWX PVC. Each pod's image-local ../assets dir drifts across nodes
+          # under the rolling version-16 tag (identical JS but different CSS
+          # content hashes), so serving assets from per-pod image dirs makes
+          # nginx 404 whatever hash a different backend pod baked into the HTML.
+          # A single concrete copy on the PVC — read by both backend and nginx —
+          # guarantees the rendered HTML and served files always match.
+          echo "Materializing shared assets on PVC"
+          rm -rf sites/assets
+          mkdir -p sites/assets
+          cp -aL /home/frappe/frappe-bench/assets/. sites/assets/
 
           echo "site-init complete"
         env:

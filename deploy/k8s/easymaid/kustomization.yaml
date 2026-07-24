@@ -17,6 +17,7 @@ resources:
   - redis-socketio.yaml
   - pvc-sites.yaml
   - frappe-python.yaml
+  - frappe-nginx.yaml
   - frappe-socketio.yaml
   - frappe-workers.yaml
   - frappe-scheduler.yaml

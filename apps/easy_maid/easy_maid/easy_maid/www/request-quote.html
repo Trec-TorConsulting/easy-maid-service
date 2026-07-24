@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Easy Maid Service | Request a Quote</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --panel: #fffdf8;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --brand: #0b6e4f;
+        --line: #ddd3c3;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "DM Sans", "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top right, #f3d3be 0%, transparent 40%), var(--bg);
+        color: var(--ink);
+      }
+      .wrap { width: min(760px, 92vw); margin: 2rem auto; }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+        padding: 1rem;
+        box-shadow: 0 16px 40px rgba(31, 41, 55, 0.1);
+      }
+      h1 { margin: 0 0 0.4rem; }
+      p { color: var(--muted); }
+      label { display: block; margin: 0.8rem 0 0.3rem; font-weight: 600; }
+      input, textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 0.6rem 0.8rem;
+        font: inherit;
+      }
+      textarea { min-height: 130px; }
+      button {
+        margin-top: 1rem;
+        border: 1px solid var(--brand);
+        border-radius: 10px;
+        background: var(--brand);
+        color: #fff;
+        padding: 0.7rem 1rem;
+        font: inherit;
+        cursor: pointer;
+      }
+      .status { margin-top: 0.8rem; }
+      .hp { position: absolute; left: -9999px; }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="card">
+        <h1>Request a Quote</h1>
+        <p>Tell us about your home and cleaning needs. We will follow up with a detailed estimate.</p>
+
+        <form id="quote-form">
+          <label for="full_name">Full name</label>
+          <input id="full_name" name="full_name" required />
+
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" required />
+
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" />
+
+          <label for="address">Service address</label>
+          <input id="address" name="address" required />
+
+          <label for="city">City</label>
+          <input id="city" name="city" required />
+
+          <label for="state">State</label>
+          <input id="state" name="state" value="NJ" required />
+
+          <label for="details">Service details</label>
+          <textarea id="details" name="details" required></textarea>
+
+          <label class="hp" for="website">Website</label>
+          <input class="hp" id="website" name="website" tabindex="-1" autocomplete="off" />
+
+          <button type="submit">Submit Quote Request</button>
+          <p class="status" id="status"></p>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById('quote-form');
+      const status = document.getElementById('status');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        status.textContent = 'Submitting...';
+
+        const payload = Object.fromEntries(new FormData(form).entries());
+
+        try {
+          const response = await fetch('/api/method/easy_maid.easy_maid.api.submit_quote_request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payload }),
+          });
+          const json = await response.json();
+          if (json.exc) {
+            throw new Error('Unable to submit request right now.');
+          }
+          status.textContent = 'Thanks. Your quote request has been received.';
+          form.reset();
+        } catch (error) {
+          status.textContent = error.message || 'Submission failed. Please try again.';
+        }
+      });
+    </script>
+  </body>
+</html>

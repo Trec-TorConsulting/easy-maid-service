@@ -1,0 +1,1 @@
+import{g as s,c as r,b as t,t as a}from"../main.js";const c={class:"card"},l={class:"muted"},i={class:"muted"},d={__name:"KpiTile",props:{label:{type:String,required:!0},value:{type:String,required:!0},hint:{type:String,default:""}},setup(e){return(n,o)=>(s(),r("article",c,[t("p",l,a(e.label),1),t("h3",null,a(e.value),1),t("p",i,a(e.hint),1)]))}};export{d as _};

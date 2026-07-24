@@ -6,6 +6,29 @@ on:
     branches: [main]
 
 jobs:
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run repo secret scan
+        run: bash scripts/check_no_secrets.sh
+      - name: Run git history secret scan
+        run: bash scripts/check_git_history_secrets.sh
+
+  python-tests:
+    name: easy_maid unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile app python
+        run: python -m compileall -q apps/easy_maid/easy_maid
+      - name: Run unit tests
+        run: PYTHONPATH=apps/easy_maid python -m unittest discover -s apps/easy_maid/easy_maid/tests -p 'test_*.py' -v
+
   openspec-validate:
     name: OpenSpec validate
     runs-on: ubuntu-latest
@@ -33,3 +56,27 @@ jobs:
           else
             echo "No manifests yet — skipping."
           fi
+
+  k8s-guardrails:
+    name: K8s guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify k8s isolation and node/PDB guardrails
+        run: bash scripts/verify_k8s_guardrails.sh
+
+  frontend-build:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/easy_maid/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build

@@ -1,0 +1,213 @@
+# Easy Maid — LOCAL development stack (docker compose)
+#
+# This replaces the former in-cluster `easymaid-dev` namespace. It stands up a
+# complete Frappe/ERPNext + easy_maid environment on your machine, seeds the DB,
+# installs erpnext + easy_maid, and serves the site at http://easymaid.localhost:8000
+#
+# The custom app is bind-mounted from ../../apps/easy_maid so local code edits are
+# reflected live inside the containers.
+#
+# Usage:
+#   cd deploy/local
+#   cp .env.example .env      # optional; sane defaults are baked in
+#   docker compose up -d      # first run seeds the site (watch: docker compose logs -f create-site)
+#   open http://easymaid.localhost:8000   (login: Administrator / ${ADMIN_PASSWORD})
+#
+# Reset everything (destroys local data):
+#   docker compose down -v
+
+name: easymaid-local
+
+x-frappe-common: &frappe-common
+  image: frappe/erpnext:version-16
+  pull_policy: missing
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - ../../apps/easy_maid:/home/frappe/frappe-bench/apps/easy_maid
+  networks:
+    - easymaid
+
+services:
+  mariadb:
+    image: mariadb:10.11
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-frappe_root}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-uroot", "-p${DB_ROOT_PASSWORD:-frappe_root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks:
+      - easymaid
+
+  redis-cache:
+    image: redis:7.2-alpine
+    volumes:
+      - redis-cache-data:/data
+    networks:
+      - easymaid
+
+  redis-queue:
+    image: redis:7.2-alpine
+    volumes:
+      - redis-queue-data:/data
+    networks:
+      - easymaid
+
+  redis-socketio:
+    image: redis:7.2-alpine
+    volumes:
+      - redis-socketio-data:/data
+    networks:
+      - easymaid
+
+  # One-shot: write global bench config (db + redis + socketio + defaults).
+  configurator:
+    <<: *frappe-common
+    restart: "no"
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        set -e
+        cd /home/frappe/frappe-bench
+        bench set-config -g db_host mariadb
+        bench set-config -gp db_port 3306
+        bench set-config -g redis_cache "redis://redis-cache:6379"
+        bench set-config -g redis_queue "redis://redis-queue:6379"
+        bench set-config -g redis_socketio "redis://redis-socketio:6379"
+        bench set-config -gp socketio_port 9000
+        bench set-config -g default_site "${SITE_NAME:-easymaid.localhost}"
+        bench set-config -gp developer_mode 1
+        bench set-config -gp server_script_enabled 1
+        echo "configurator complete"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  # One-shot: create the site, install erpnext + easy_maid (idempotent).
+  create-site:
+    <<: *frappe-common
+    restart: "no"
+    environment:
+      SITE_NAME: ${SITE_NAME:-easymaid.localhost}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-frappe_root}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        set -e
+        cd /home/frappe/frappe-bench
+        [ -e sites/assets ] || ln -s ../assets sites/assets
+        SITE="${SITE_NAME:-easymaid.localhost}"
+        if [ -f "sites/$SITE/site_config.json" ]; then
+          echo "Site $SITE already exists; skipping new-site"
+        else
+          bench new-site "$SITE" \
+            --db-root-username root \
+            --db-root-password "${DB_ROOT_PASSWORD:-frappe_root}" \
+            --mariadb-user-host-login-scope=% \
+            --admin-password "${ADMIN_PASSWORD:-admin}" \
+            --install-app erpnext \
+            --set-default
+        fi
+        if [ -f apps/easy_maid/pyproject.toml ]; then
+          /home/frappe/frappe-bench/env/bin/python -m pip install -e apps/easy_maid
+          grep -qx easy_maid sites/apps.txt 2>/dev/null || echo easy_maid >> sites/apps.txt
+        fi
+        if ! bench --site "$SITE" list-apps | grep -Eq "^easy_maid(\s|$)"; then
+          if [ -d apps/easy_maid ]; then
+            bench --site "$SITE" install-app easy_maid
+          else
+            echo "easy_maid source not present; skipping install-app"
+          fi
+        else
+          echo "easy_maid already installed on $SITE"
+        fi
+        bench --site "$SITE" enable-scheduler || true
+        echo "create-site complete"
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+      redis-cache:
+        condition: service_started
+      redis-queue:
+        condition: service_started
+      redis-socketio:
+        condition: service_started
+
+  backend:
+    <<: *frappe-common
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        cd /home/frappe/frappe-bench
+        [ -e sites/assets ] || ln -s ../assets sites/assets
+        [ -f apps/easy_maid/pyproject.toml ] && /home/frappe/frappe-bench/env/bin/python -m pip install -e apps/easy_maid || true
+        exec /home/frappe/frappe-bench/env/bin/gunicorn \
+          --bind 0.0.0.0:8000 \
+          --workers 2 \
+          --timeout 120 \
+          --graceful-timeout 30 \
+          --worker-tmp-dir /dev/shm \
+          --chdir /home/frappe/frappe-bench/sites \
+          frappe.app:application
+    ports:
+      - "8000:8000"
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  websocket:
+    <<: *frappe-common
+    entrypoint: ["bash", "-c"]
+    command:
+      - cd /home/frappe/frappe-bench && exec node apps/frappe/socketio.js
+    ports:
+      - "9000:9000"
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  scheduler:
+    <<: *frappe-common
+    entrypoint: ["bash", "-c"]
+    command:
+      - cd /home/frappe/frappe-bench && exec bench schedule
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  queue-default:
+    <<: *frappe-common
+    entrypoint: ["bash", "-c"]
+    command:
+      - cd /home/frappe/frappe-bench && exec bench worker --queue default
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+  queue-short-long:
+    <<: *frappe-common
+    entrypoint: ["bash", "-c"]
+    command:
+      - cd /home/frappe/frappe-bench && exec bench worker --queue short,long
+    depends_on:
+      create-site:
+        condition: service_completed_successfully
+
+networks:
+  easymaid:
+    driver: bridge
+
+volumes:
+  sites:
+  mariadb-data:
+  redis-cache-data:
+  redis-queue-data:
+  redis-socketio-data:
