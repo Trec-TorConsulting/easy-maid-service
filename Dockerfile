@@ -57,9 +57,24 @@ RUN awk 'NF' /home/frappe/frappe-bench/sites/apps.txt > /tmp/apps.txt && \
 # untouched; the site-init Job materializes them (plus /assets/easy_maid/*) onto
 # the PVC via `cp -aL`.
 
+# ── Multi-domain socketio (realtime) fix ────────────────────────────────────
+# The stock nginx template pins the websocket `Origin` header to
+# ${FRAPPE_SITE_NAME_HEADER} (our fixed site name, easymaid.trector.com). But
+# Frappe's socketio `authenticate` middleware rejects a connection unless
+# hostname(Origin) == hostname(Host). Because we serve a different public host
+# (maidurday.com) through a fixed site header, that check fails with
+# "Invalid origin" and realtime (live notifications, list refresh) breaks.
+# Point `Origin` at the real incoming `$host` so it always matches `Host`.
+# The template lives under the root-owned /templates dir, so patch it as root
+# and drop back to the unprivileged frappe user afterwards.
+USER root
+RUN sed -i 's|Origin $proxy_x_forwarded_proto://${FRAPPE_SITE_NAME_HEADER}|Origin $proxy_x_forwarded_proto://$host|' \
+    /templates/nginx/frappe.conf.template
+USER frappe
+
 # ── Image metadata ──────────────────────────────────────────────────────────
 LABEL org.opencontainers.image.title="Easy Maid Service Bench"
 LABEL org.opencontainers.image.description="Frappe/ERPNext bench with the easy_maid app"
 LABEL org.opencontainers.image.vendor="Trec-Tor Consulting"
 LABEL org.opencontainers.image.source="https://github.com/Trec-TorConsulting/easy-maid-service"
-LABEL org.opencontainers.image.version="0.0.8"
+LABEL org.opencontainers.image.version="0.0.9"
