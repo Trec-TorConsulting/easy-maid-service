@@ -1,0 +1,18 @@
+# Keep the Docker build context small — only apps/easy_maid is needed.
+.git
+.github
+.venv-assets
+.vscode
+openspec
+brand
+deploy
+docs
+scripts
+*.md
+!apps/easy_maid/README.md
+apps/easy_maid/frontend/node_modules
+apps/easy_maid/frontend/dist
+apps/easy_maid/frontend/.vite
+**/__pycache__
+**/*.pyc
+**/.DS_Store

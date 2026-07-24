@@ -73,12 +73,27 @@ spec:
               --install-app erpnext
           fi
 
+          # easy_maid is baked into the custom bench image (see ./Dockerfile),
+          # so it is already present under apps/ and pip-installed. If it is ever
+          # absent (e.g. running on the stock image), fall back to get-app.
           if [ ! -d "apps/easy_maid" ]; then
-            if echo "${EASY_MAID_APP_REPO_URL}" | grep -q "YOUR_ORG/easy_maid.git"; then
+            if echo "${EASY_MAID_APP_REPO_URL:-}" | grep -q "YOUR_ORG/easy_maid.git"; then
               echo "Skipping easy_maid get-app: EASY_MAID_APP_REPO_URL is placeholder"
-            else
+            elif [ -n "${EASY_MAID_APP_REPO_URL:-}" ]; then
               bench get-app easy_maid "${EASY_MAID_APP_REPO_URL}"
             fi
+          fi
+
+          # Ensure easy_maid is registered in the shared (PVC) apps.txt. The
+          # image's apps.txt is masked by the sites PVC at runtime, so the
+          # running pods rely on this file. Normalise with awk (no trailing
+          # newline in the base file) before appending.
+          if [ -d "apps/easy_maid" ]; then
+            touch sites/apps.txt
+            awk 'NF' sites/apps.txt > /tmp/apps.txt || true
+            grep -qxF easy_maid /tmp/apps.txt 2>/dev/null || echo easy_maid >> /tmp/apps.txt
+            mv /tmp/apps.txt sites/apps.txt
+            echo "apps.txt: $(tr '\n' ' ' < sites/apps.txt)"
           fi
 
           if bench --site "${SITE_NAME}" list-apps | grep -qx "easy_maid"; then
@@ -89,17 +104,27 @@ spec:
             echo "Skipping easy_maid install: app source not available"
           fi
 
+          # Apply any pending schema/patches for installed apps.
+          if [ -d "apps/easy_maid" ]; then
+            bench --site "${SITE_NAME}" migrate
+          fi
+
           # Materialize a single, concrete copy of built assets onto the shared
-          # RWX PVC. Each pod's image-local ../assets dir drifts across nodes
-          # under the rolling version-16 tag (identical JS but different CSS
-          # content hashes), so serving assets from per-pod image dirs makes
-          # nginx 404 whatever hash a different backend pod baked into the HTML.
-          # A single concrete copy on the PVC — read by both backend and nginx —
-          # guarantees the rendered HTML and served files always match.
+          # RWX PVC. Every frappe workload now runs one immutable custom image,
+          # so all pods share identical assets (no per-node hash drift). We copy
+          # in place (no destructive `rm -rf sites/assets`) to avoid racing with
+          # running pods that read this dir on the RWX volume during a rollout.
           echo "Materializing shared assets on PVC"
-          rm -rf sites/assets
           mkdir -p sites/assets
           cp -aL /home/frappe/frappe-bench/assets/. sites/assets/
+
+          # bench build does not place the custom app's link in the bench-level
+          # assets dir, so copy easy_maid's public dir explicitly. This is what
+          # backs /assets/easy_maid/* (including the prebuilt Vue frontend).
+          if [ -d apps/easy_maid/easy_maid/public ]; then
+            mkdir -p sites/assets/easy_maid
+            cp -aL apps/easy_maid/easy_maid/public/. sites/assets/easy_maid/
+          fi
 
           echo "site-init complete"
         env:

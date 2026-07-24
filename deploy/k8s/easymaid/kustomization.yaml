@@ -25,3 +25,11 @@ resources:
   - site-init-job.yaml
   - backup-cronjob.yaml
   - pdb.yaml
+
+# Custom bench image with the easy_maid app baked in (built from ./Dockerfile and
+# pushed to the local cluster registry). A single immutable image for every
+# frappe workload also removes the asset-hash drift of the rolling upstream tag.
+images:
+  - name: frappe/erpnext
+    newName: 192.168.4.10:30500/easy-maid-service/bench
+    newTag: "0.0.1"
