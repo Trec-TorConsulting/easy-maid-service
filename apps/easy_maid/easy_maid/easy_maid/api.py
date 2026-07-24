@@ -69,6 +69,53 @@ def _frequency_to_months(frequency: str, interval: int) -> int:
     return max(base * max(interval, 1), 1)
 
 
+def _nj_tax_template() -> str | None:
+    """Resolve the NJ sales tax template name.
+
+    The template is created with title "NJ Sales Tax"; ERPNext appends the
+    company abbreviation to the autoname (e.g. "NJ Sales Tax - EMS"), so the
+    link value must be resolved by title rather than hardcoded.
+    """
+    return frappe.db.get_value(
+        "Sales Taxes and Charges Template", {"title": "NJ Sales Tax"}, "name"
+    )
+
+
+def _default_company() -> str | None:
+    """Return the global default company, falling back to the only company."""
+    return (
+        frappe.defaults.get_global_default("company")
+        or frappe.db.get_value("Company", {}, "name")
+    )
+
+
+def _resolve_customer_address(so) -> str:
+    """Resolve a service address for a Sales Order's customer.
+
+    Prefers the order's own address links, then any Address linked to the
+    customer. Raises a clear error when none exists so bookings are never
+    created without a serviceable location.
+    """
+    address = so.customer_address or so.shipping_address_name
+    if not address and so.customer:
+        address = frappe.db.get_value(
+            "Dynamic Link",
+            {
+                "link_doctype": "Customer",
+                "link_name": so.customer,
+                "parenttype": "Address",
+            },
+            "parent",
+        )
+    if not address:
+        frappe.throw(
+            _("No service address found for customer {0}. Add an address before creating a booking.").format(
+                so.customer
+            )
+        )
+    return address
+
+
 @frappe.whitelist()
 def dispatch_board(start_date: str, end_date: str | None = None):
     """Return visits grouped for owner dispatch UI."""
@@ -251,10 +298,12 @@ def create_booking_from_sales_order(sales_order: str, booking_type: str = "One-t
     so = frappe.get_doc("Sales Order", sales_order)
     booking = frappe.new_doc("Booking")
     booking.customer = so.customer
-    booking.service_address = so.customer_address or so.shipping_address_name
+    booking.service_address = _resolve_customer_address(so)
     booking.booking_type = booking_type
     booking.status = "Active"
     booking.sales_order = so.name
+    if booking_type == "One-time":
+        booking.scheduled_date = so.delivery_date or today()
 
     if so.items:
         for item in so.items:
@@ -298,7 +347,7 @@ def generate_invoice_for_visit(visit_name: str):
             "customer": booking.customer,
             "company": "Easy Maid Service",
             "due_date": add_days(today(), 7),
-            "taxes_and_charges": "NJ Sales Tax",
+            "taxes_and_charges": _nj_tax_template(),
             "items": [
                 {
                     "item_code": row.item_code,
@@ -344,7 +393,7 @@ def ensure_recurring_billing_for_booking(booking_name: str):
                 "customer": booking.customer,
                 "customer_address": booking.service_address,
                 "delivery_date": booking.start_date,
-                "taxes_and_charges": "NJ Sales Tax",
+                "taxes_and_charges": _nj_tax_template(),
                 "items": [
                     {
                         "item_code": row.item_code,
@@ -434,7 +483,9 @@ def submit_quote_request(payload: dict | None = None):
             "mobile_no": cleaned["phone"],
             "source": "Website",
             "status": "Lead",
-            "notes": f"Address: {cleaned['address']}\n\nRequest: {cleaned['details']}",
+            "notes": [
+                {"note": f"Address: {cleaned['address']}<br><br>Request: {cleaned['details']}"}
+            ],
             "city": cleaned["city"],
             "state": cleaned["state"],
         }
@@ -473,6 +524,8 @@ def qualify_lead_to_opportunity(lead_name: str):
 
     if isinstance(opp_doc, dict):
         opp_doc = frappe.get_doc(opp_doc)
+    if not opp_doc.get("company"):
+        opp_doc.company = _default_company()
     if opp_doc.docstatus == 0 and not opp_doc.name:
         opp_doc.insert(ignore_permissions=True)
 
@@ -483,7 +536,7 @@ def qualify_lead_to_opportunity(lead_name: str):
 def create_quotation_from_opportunity(
     opportunity_name: str,
     items: str | list[dict] | None = None,
-    tax_template: str | None = "NJ Sales Tax",
+    tax_template: str | None = None,
 ):
     """Create a quotation from an Opportunity and append service items."""
     _ensure_owner_or_admin()
@@ -505,8 +558,11 @@ def create_quotation_from_opportunity(
             },
         )
 
-    if tax_template:
-        q_doc.taxes_and_charges = tax_template
+    template = tax_template or _nj_tax_template()
+    if template:
+        q_doc.taxes_and_charges = template
+    if not q_doc.get("company"):
+        q_doc.company = _default_company()
 
     q_doc.insert(ignore_permissions=True)
     q_doc.run_method("calculate_taxes_and_totals")
@@ -549,12 +605,20 @@ def convert_quotation_to_sales_order_and_booking(quotation_name: str, booking_ty
     """Convert accepted quotation to Sales Order and seed Booking record."""
     _ensure_owner_or_admin()
 
+    quotation = frappe.get_doc("Quotation", quotation_name)
+    if quotation.docstatus == 0:
+        quotation.submit()
+
     mapper = _get_mapper([
         "erpnext.selling.doctype.quotation.quotation.make_sales_order",
     ])
-    so_doc = mapper(quotation_name)
+    so_doc = mapper(quotation.name)
     if isinstance(so_doc, dict):
         so_doc = frappe.get_doc(so_doc)
+    if not so_doc.get("company"):
+        so_doc.company = _default_company()
+    if not so_doc.get("delivery_date"):
+        so_doc.delivery_date = add_days(today(), 7)
     so_doc.insert(ignore_permissions=True)
 
     booking_name = create_booking_from_sales_order(so_doc.name, booking_type=booking_type)

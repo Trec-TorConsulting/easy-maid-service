@@ -9,9 +9,11 @@ from easy_maid.easy_maid import permissions
 
 @frappe.whitelist()
 def run_lead_to_booking_smoke(customer_email: str = "quote-smoke@example.com"):
-    """Runtime smoke path for 11.x using native ERPNext mappers.
+    """Runtime smoke path exercising the ERPNext-16 lead-to-booking chain.
 
-    This is intended for a non-production smoke check and is idempotent by name prefix.
+    Provisions its own test data (lead, submitted quotation, customer address)
+    and is idempotent by name prefix. Runs the native ERPNext mappers plus the
+    Easy Maid custom Booking creation.
     """
     lead_name = _create_or_get_smoke_lead(customer_email)
     opp = api.qualify_lead_to_opportunity(lead_name)["opportunity"]
@@ -21,28 +23,75 @@ def run_lead_to_booking_smoke(customer_email: str = "quote-smoke@example.com"):
         items=[
             {"item_code": "EMS-STD-CLEAN", "qty": 1, "rate": 150},
         ],
-        tax_template="NJ Sales Tax",
     )["quotation"]
 
-    frappe.db.set_value("Quotation", quotation, "status", "Open")
-
-    converted = api.convert_quotation_to_sales_order_and_booking(quotation, booking_type="One-time")
-
     quote_doc = frappe.get_doc("Quotation", quotation)
+    if quote_doc.docstatus == 0:
+        quote_doc.submit()
+
+    sales_order = _make_smoke_sales_order(quotation)
+    _ensure_smoke_service_address(sales_order)
+    booking = api.create_booking_from_sales_order(sales_order, booking_type="One-time")
+
+    quote_doc.reload()
     checks = {
         "quotation_has_items": bool(quote_doc.items),
         "quotation_grand_total_positive": float(quote_doc.grand_total or 0) > 0,
         "quotation_taxes_present": bool(quote_doc.taxes_and_charges),
+        "sales_order_created": bool(sales_order),
+        "booking_created": bool(booking),
     }
 
     return {
         "lead": lead_name,
         "opportunity": opp,
         "quotation": quotation,
-        "sales_order": converted["sales_order"],
-        "booking": converted["booking"],
+        "sales_order": sales_order,
+        "booking": booking,
         "checks": checks,
     }
+
+
+def _make_smoke_sales_order(quotation_name: str) -> str:
+    """Create a Sales Order from a submitted quotation with defensive defaults."""
+    mapper = api._get_mapper(["erpnext.selling.doctype.quotation.quotation.make_sales_order"])
+    so = mapper(quotation_name)
+    if isinstance(so, dict):
+        so = frappe.get_doc(so)
+    if not so.get("company"):
+        so.company = api._default_company()
+    if not so.get("delivery_date"):
+        so.delivery_date = add_days(today(), 7)
+    so.insert(ignore_permissions=True)
+    return so.name
+
+
+def _ensure_smoke_service_address(sales_order_name: str) -> str:
+    """Ensure the Sales Order's customer has a service address for booking."""
+    so = frappe.get_doc("Sales Order", sales_order_name)
+    existing = so.customer_address or frappe.db.get_value(
+        "Dynamic Link",
+        {"link_doctype": "Customer", "link_name": so.customer, "parenttype": "Address"},
+        "parent",
+    )
+    if existing:
+        return existing
+    address = frappe.get_doc(
+        {
+            "doctype": "Address",
+            "address_title": so.customer,
+            "address_type": "Billing",
+            "address_line1": "123 Smoke Test St",
+            "city": "Jersey City",
+            "state": "New Jersey",
+            "country": "United States",
+            "pincode": "07302",
+            "links": [{"link_doctype": "Customer", "link_name": so.customer}],
+        }
+    ).insert(ignore_permissions=True)
+    so.customer_address = address.name
+    so.save(ignore_permissions=True)
+    return address.name
 
 
 @frappe.whitelist()
@@ -459,7 +508,7 @@ def _create_or_get_smoke_lead(customer_email: str) -> str:
             "status": "Lead",
             "city": "Jersey City",
             "state": "New Jersey",
-            "notes": "Automated smoke lead",
+            "notes": [{"note": "Automated smoke lead"}],
         }
     )
     lead.insert(ignore_permissions=True)
