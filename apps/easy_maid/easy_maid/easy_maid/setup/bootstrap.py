@@ -374,7 +374,7 @@ def _ensure_branding(company_name: str):
     website_settings.update(
         {
             "app_name": COMPANY,
-            "app_logo": "/assets/easy_maid/brand/logo-mark.svg",
+            "app_logo": "/assets/easy_maid/brand/logo-mark.svg?v=2",
             "favicon": "/assets/easy_maid/brand/favicon.svg",
             "banner_image": "/assets/easy_maid/brand/logo-full.png",
         }
@@ -389,7 +389,7 @@ def _ensure_navbar_branding():
     try:
         navbar = frappe.get_single("Navbar Settings")
         if hasattr(navbar, "app_logo"):
-            navbar.app_logo = "/assets/easy_maid/brand/logo-mark.svg"
+            navbar.app_logo = "/assets/easy_maid/brand/logo-mark.svg?v=2"
         hide_labels = {"about", "report an issue", "documentation", "frappe support"}
         for row in list(getattr(navbar, "help_dropdown", []) or []):
             label = (row.get("item_label") or "").strip().lower()
@@ -428,6 +428,11 @@ def _ensure_easy_maid_workspace():
             {"type": "Link", "label": "Quotation", "link_type": "DocType", "link_to": "Quotation"},
             {"type": "Link", "label": "Sales Order", "link_type": "DocType", "link_to": "Sales Order"},
             {"type": "Link", "label": "Customer", "link_type": "DocType", "link_to": "Customer"},
+            {"type": "Card Break", "label": "Billing"},
+            {"type": "Link", "label": "Sales Invoice", "link_type": "DocType", "link_to": "Sales Invoice"},
+            {"type": "Link", "label": "Payment Entry", "link_type": "DocType", "link_to": "Payment Entry"},
+            {"type": "Card Break", "label": "Team"},
+            {"type": "Link", "label": "Employee", "link_type": "DocType", "link_to": "Employee"},
         ]
         content = _json.dumps(
             [
@@ -438,6 +443,8 @@ def _ensure_easy_maid_workspace():
                 {"id": "em_sc_cust", "type": "shortcut", "data": {"shortcut_name": "Customers", "col": 3}},
                 {"id": "em_card_ops", "type": "card", "data": {"card_name": "Operations", "col": 4}},
                 {"id": "em_card_sales", "type": "card", "data": {"card_name": "Sales", "col": 4}},
+                {"id": "em_card_bill", "type": "card", "data": {"card_name": "Billing", "col": 4}},
+                {"id": "em_card_team", "type": "card", "data": {"card_name": "Team", "col": 4}},
             ]
         )
         values = {
@@ -468,6 +475,35 @@ def _ensure_easy_maid_workspace():
         return False
 
 
+# Public workspaces that stay visible in the Desk. Everything else that ships
+# with Frappe/ERPNext (Buying, Manufacturing, Stock, Assets, Quality, CRM, ...)
+# is irrelevant to a cleaning business and is hidden so the Desk stays focused.
+DESK_KEEP_WORKSPACES = {"Maidurday"}
+
+
+def _ensure_desk_declutter():
+    """Hide stock Frappe/ERPNext public workspaces, keeping only Maidurday.
+
+    A fresh install exposes ~20 public workspaces that have nothing to do with a
+    maid service. We flag the rest hidden (reversible) instead of deleting them,
+    so an admin can restore any workspace later, and DocType access is unchanged.
+    """
+    if not frappe.db.exists("DocType", "Workspace"):
+        return False
+    try:
+        hidden = 0
+        for name in frappe.get_all("Workspace", filters={"public": 1}, pluck="name"):
+            target = 0 if name in DESK_KEEP_WORKSPACES else 1
+            if frappe.db.get_value("Workspace", name, "is_hidden") != target:
+                frappe.db.set_value("Workspace", name, "is_hidden", target, update_modified=False)
+            if target:
+                hidden += 1
+        return hidden
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Easy Maid: desk declutter bootstrap failed")
+        return False
+
+
 def _ensure_letter_head(company_name: str):
     if not frappe.db.exists("DocType", "Letter Head"):
         return False
@@ -476,7 +512,7 @@ def _ensure_letter_head(company_name: str):
     content = """
 <div style='font-family:Arial,sans-serif;'>
   <div style='display:flex;align-items:center;gap:10px;'>
-    <img src='/assets/easy_maid/brand/logo-mark.svg' alt='Maidurday' style='height:34px;' />
+    <img src='/assets/easy_maid/brand/logo-mark.svg?v=2' alt='Maidurday' style='height:34px;' />
     <div>
       <strong>Maidurday Cleaning Service</strong><br />
       New Jersey, USA
@@ -725,6 +761,7 @@ def bootstrap_easymaid_defaults():
     _ensure_branding(company.name)
     navbar_branding_configured = _ensure_navbar_branding()
     easy_maid_workspace_configured = _ensure_easy_maid_workspace()
+    desk_workspaces_hidden = _ensure_desk_declutter()
     letter_head_configured = _ensure_letter_head(company.name)
     payroll_scaffold_configured = _ensure_payroll_scaffold(company.name)
     stripe_configured = _ensure_stripe_settings()
@@ -744,9 +781,30 @@ def bootstrap_easymaid_defaults():
         "letter_head_configured": letter_head_configured,
         "navbar_branding_configured": navbar_branding_configured,
         "easy_maid_workspace_configured": easy_maid_workspace_configured,
+        "desk_workspaces_hidden": desk_workspaces_hidden,
         "quotation_print_format_configured": quotation_print_format_configured,
         "sales_invoice_print_format_configured": sales_invoice_print_format_configured,
         "employee_custom_fields": employee_custom_fields,
         "shift_types": shift_types,
         "service_items": [code for code, _, _ in SERVICE_ITEMS],
+    }
+
+
+@frappe.whitelist()
+def reapply_desk_customizations():
+    """Re-assert Desk branding + declutter after a migration.
+
+    `bench migrate` re-syncs the stock Frappe/ERPNext workspaces, which can
+    unhide them and restore default branding. This lightweight hook re-applies
+    only the Desk-facing customizations (no heavy company/item seeding), so the
+    Desk stays branded and focused on the maid service after every deploy.
+    """
+    navbar = _ensure_navbar_branding()
+    workspace = _ensure_easy_maid_workspace()
+    hidden = _ensure_desk_declutter()
+    frappe.db.commit()
+    return {
+        "navbar_branding_configured": navbar,
+        "easy_maid_workspace_configured": workspace,
+        "desk_workspaces_hidden": hidden,
     }

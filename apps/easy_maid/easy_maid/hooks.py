@@ -11,6 +11,10 @@ required_apps = ["erpnext"]
 # Run idempotent baseline setup after app installation on a site.
 after_install = "easy_maid.easy_maid.setup.bootstrap.bootstrap_easymaid_defaults"
 
+# Re-assert Desk branding + workspace declutter after every migration, since
+# `bench migrate` re-syncs the stock Frappe/ERPNext workspaces.
+after_migrate = "easy_maid.easy_maid.setup.bootstrap.reapply_desk_customizations"
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # Export configured records (roles, tax templates, service Items, etc.) so the
@@ -85,18 +89,18 @@ app_include_js = ["/assets/easy_maid/frontend/main.js"]
 # page logo. website_context sets the favicon and splash image site-wide.
 # Navbar Settings / Website Settings are seeded idempotently in bootstrap.
 # ---------------------------------------------------------------------------
-app_logo_url = "/assets/easy_maid/brand/logo-mark.svg"
+app_logo_url = "/assets/easy_maid/brand/logo-mark.svg?v=2"
 
 website_context = {
 	"favicon": "/assets/easy_maid/brand/favicon.svg",
-	"splash_image": "/assets/easy_maid/brand/logo-mark.svg",
+	"splash_image": "/assets/easy_maid/brand/logo-mark.svg?v=2",
 }
 
 # Easy Maid entry on the /apps launcher screen.
 add_to_apps_screen = [
 	{
 		"name": "easy_maid",
-		"logo": "/assets/easy_maid/brand/logo-mark.svg",
+		"logo": "/assets/easy_maid/brand/logo-mark.svg?v=2",
 		"title": "Maidurday",
 		"route": "/app/maidurday",
 	}
