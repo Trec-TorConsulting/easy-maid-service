@@ -374,9 +374,94 @@ def _ensure_branding(company_name: str):
         {
             "app_name": COMPANY,
             "app_logo": "/assets/easy_maid/brand/logo-mark.svg",
+            "favicon": "/assets/easy_maid/brand/favicon.svg",
+            "banner_image": "/assets/easy_maid/brand/logo-full.png",
         }
     )
     website_settings.save(ignore_permissions=True)
+
+
+def _ensure_navbar_branding():
+    """Point the Desk navbar at Easy Maid branding and hide Frappe/ERPNext links."""
+    if not frappe.db.exists("DocType", "Navbar Settings"):
+        return False
+    try:
+        navbar = frappe.get_single("Navbar Settings")
+        if hasattr(navbar, "app_logo"):
+            navbar.app_logo = "/assets/easy_maid/brand/logo-mark.svg"
+        hide_labels = {"about", "report an issue", "documentation", "frappe support"}
+        for row in list(getattr(navbar, "help_dropdown", []) or []):
+            label = (row.get("item_label") or "").strip().lower()
+            if label in hide_labels:
+                row.hidden = 1
+        navbar.save(ignore_permissions=True)
+        return True
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Easy Maid: navbar branding bootstrap failed")
+        return False
+
+
+def _ensure_easy_maid_workspace():
+    """Create a public Easy Maid workspace to land on in the Desk."""
+    if not frappe.db.exists("DocType", "Workspace"):
+        return False
+    try:
+        import json as _json
+
+        title = "Easy Maid"
+        shortcuts = [
+            {"type": "DocType", "link_to": "Booking", "label": "Bookings", "color": "Green"},
+            {"type": "DocType", "link_to": "Service Visit", "label": "Service Visits", "color": "Blue"},
+            {"type": "DocType", "link_to": "Crew Assignment", "label": "Crew Assignments", "color": "Orange"},
+            {"type": "DocType", "link_to": "Customer", "label": "Customers", "color": "Grey"},
+        ]
+        links = [
+            {"type": "Card Break", "label": "Operations"},
+            {"type": "Link", "label": "Booking", "link_type": "DocType", "link_to": "Booking"},
+            {"type": "Link", "label": "Service Visit", "link_type": "DocType", "link_to": "Service Visit"},
+            {"type": "Link", "label": "Crew Assignment", "link_type": "DocType", "link_to": "Crew Assignment"},
+            {"type": "Card Break", "label": "Sales"},
+            {"type": "Link", "label": "Quotation", "link_type": "DocType", "link_to": "Quotation"},
+            {"type": "Link", "label": "Sales Order", "link_type": "DocType", "link_to": "Sales Order"},
+            {"type": "Link", "label": "Customer", "link_type": "DocType", "link_to": "Customer"},
+        ]
+        content = _json.dumps(
+            [
+                {"id": "em_header", "type": "header", "data": {"text": "<span class=\"h4\"><b>Easy Maid</b></span>", "col": 12}},
+                {"id": "em_sc_book", "type": "shortcut", "data": {"shortcut_name": "Bookings", "col": 3}},
+                {"id": "em_sc_visit", "type": "shortcut", "data": {"shortcut_name": "Service Visits", "col": 3}},
+                {"id": "em_sc_crew", "type": "shortcut", "data": {"shortcut_name": "Crew Assignments", "col": 3}},
+                {"id": "em_sc_cust", "type": "shortcut", "data": {"shortcut_name": "Customers", "col": 3}},
+                {"id": "em_card_ops", "type": "card", "data": {"card_name": "Operations", "col": 4}},
+                {"id": "em_card_sales", "type": "card", "data": {"card_name": "Sales", "col": 4}},
+            ]
+        )
+        values = {
+            "title": title,
+            "label": title,
+            "public": 1,
+            "is_hidden": 0,
+            "icon": "tool",
+            "module": "Easy Maid",
+            "sequence_id": 1.0,
+            "content": content,
+        }
+        if frappe.db.exists("Workspace", title):
+            workspace = frappe.get_doc("Workspace", title)
+            workspace.set("shortcuts", [])
+            workspace.set("links", [])
+            workspace.update(values)
+        else:
+            workspace = frappe.get_doc({"doctype": "Workspace", **values})
+        for shortcut in shortcuts:
+            workspace.append("shortcuts", shortcut)
+        for link in links:
+            workspace.append("links", link)
+        workspace.save(ignore_permissions=True)
+        return True
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Easy Maid: workspace bootstrap failed")
+        return False
 
 
 def _ensure_letter_head(company_name: str):
@@ -634,6 +719,8 @@ def bootstrap_easymaid_defaults():
     _ensure_service_items(company.name)
     _ensure_nj_tax_template(company.name)
     _ensure_branding(company.name)
+    navbar_branding_configured = _ensure_navbar_branding()
+    easy_maid_workspace_configured = _ensure_easy_maid_workspace()
     letter_head_configured = _ensure_letter_head(company.name)
     payroll_scaffold_configured = _ensure_payroll_scaffold(company.name)
     stripe_configured = _ensure_stripe_settings()
@@ -651,6 +738,8 @@ def bootstrap_easymaid_defaults():
         "stripe_configured": stripe_configured,
         "quote_web_form_configured": quote_web_form_configured,
         "letter_head_configured": letter_head_configured,
+        "navbar_branding_configured": navbar_branding_configured,
+        "easy_maid_workspace_configured": easy_maid_workspace_configured,
         "quotation_print_format_configured": quotation_print_format_configured,
         "sales_invoice_print_format_configured": sales_invoice_print_format_configured,
         "employee_custom_fields": employee_custom_fields,

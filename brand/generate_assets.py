@@ -12,13 +12,19 @@ from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Brand palette
-TEAL_TOP = (45, 212, 191)   # #2DD4BF
-TEAL_BOT = (13, 148, 136)   # #0D9488
-TEAL_TEXT = (13, 148, 136)  # #0D9488
-AMBER = (250, 204, 21)      # #FACC15
+# Brand palette — natural green tones
+GREEN_TOP = (91, 176, 122)   # #5BB07A  fresh sage
+GREEN_BOT = (30, 79, 58)     # #1E4F3A  deep forest
+GREEN_TEXT = (30, 79, 58)    # #1E4F3A  deep forest (wordmark)
+MINT = (198, 246, 213)       # #C6F6D5  soft mint accent
 WHITE = (255, 255, 255)
-SLATE = (15, 23, 42)        # #0F172A
+SLATE = (26, 46, 37)         # #1A2E25  natural dark green-gray
+
+# Backwards-compatible aliases used below
+TEAL_TOP = GREEN_TOP
+TEAL_BOT = GREEN_BOT
+TEAL_TEXT = GREEN_TEXT
+AMBER = MINT
 
 SS = 4  # supersample factor
 
@@ -85,7 +91,7 @@ def make_mark(size):
     draw.text((tx, ty), text, font=font, fill=WHITE)
 
     # Sparkles (fresh/clean cue)
-    star4(draw, s * 0.75, s * 0.24, s * 0.11, s * 0.038, AMBER)
+    star4(draw, s * 0.75, s * 0.24, s * 0.11, s * 0.038, MINT)
     star4(draw, s * 0.86, s * 0.40, s * 0.045, s * 0.016, WHITE)
 
     return img.resize((size, size), Image.LANCZOS)
@@ -127,7 +133,8 @@ def main():
     make_mark(512).save(os.path.join(HERE, "icon-512.png"))
     make_mark(180).save(os.path.join(HERE, "apple-touch-icon.png"))
 
-    # favicon.ico (multi-size)
+    # favicon.png (broad-compatibility raster) + multi-size favicon.ico
+    make_mark(48).save(os.path.join(HERE, "favicon.png"))
     mark256 = make_mark(256)
     mark256.save(
         os.path.join(HERE, "favicon.ico"),

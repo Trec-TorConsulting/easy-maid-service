@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Easy Maid logo">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#2DD4BF"/>
-      <stop offset="100%" stop-color="#0D9488"/>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5BB07A"/>
+      <stop offset="100%" stop-color="#1E4F3A"/>
     </linearGradient>
   </defs>
-  <rect x="20" y="20" width="216" height="216" rx="48" fill="url(#g)"/>
-  <path d="M70 152c22-10 36-34 42-60 8 16 24 28 46 33-12 17-32 30-58 37l-30-10z" fill="#ffffff" opacity="0.95"/>
-  <circle cx="172" cy="88" r="12" fill="#FACC15"/>
+  <rect x="0" y="0" width="256" height="256" rx="60" fill="url(#g)"/>
+  <text x="128" y="150" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="102" fill="#FFFFFF">EM</text>
+  <path d="M192 46 L199 65 L218 61 L200 73 L205 92 L192 78 L179 92 L184 73 L166 61 L185 65 Z" fill="#C6F6D5"/>
 </svg>

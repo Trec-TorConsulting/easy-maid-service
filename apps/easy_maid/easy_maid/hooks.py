@@ -79,6 +79,29 @@ doc_events = {
 app_include_css = ["/assets/easy_maid/frontend/main.css"]
 app_include_js = ["/assets/easy_maid/frontend/main.js"]
 
+# ---------------------------------------------------------------------------
+# Desk & website branding (Easy Maid)
+# app_logo_url drives the Desk navbar brand, the loading splash, and the login
+# page logo. website_context sets the favicon and splash image site-wide.
+# Navbar Settings / Website Settings are seeded idempotently in bootstrap.
+# ---------------------------------------------------------------------------
+app_logo_url = "/assets/easy_maid/brand/logo-mark.svg"
+
+website_context = {
+	"favicon": "/assets/easy_maid/brand/favicon.svg",
+	"splash_image": "/assets/easy_maid/brand/logo-mark.svg",
+}
+
+# Easy Maid entry on the /apps launcher screen.
+add_to_apps_screen = [
+	{
+		"name": "easy_maid",
+		"logo": "/assets/easy_maid/brand/logo-mark.svg",
+		"title": "Easy Maid",
+		"route": "/app/easy-maid",
+	}
+]
+
 # website_route_rules = [
 #     {"from_route": "/app-portal/<path:app_path>", "to_route": "app-portal"},
 # ]
