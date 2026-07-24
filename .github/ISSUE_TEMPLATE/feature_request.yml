@@ -1,0 +1,37 @@
+name: Feature request
+description: Propose a new capability or improvement
+title: "feat: <short description>"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Significant work is spec-driven. Non-trivial features should become an OpenSpec
+        change before implementation — see [AGENTS.md](../blob/main/AGENTS.md).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What problem does this solve? Who benefits (Owner / Client / Cleaner)?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the capability. Note whether native ERPNext can cover it.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Links, mockups, related specs/tasks.
+    validations:
+      required: false

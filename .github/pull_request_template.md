@@ -25,4 +25,4 @@
 - [ ] No secrets committed
 - [ ] Docs updated (`docs/FULL-DEPLOY.md`, smoke/runbook updates)
 - [ ] OpenSpec tasks/specs updated appropriately
-- [ ] CI green
+- [ ] Verified locally (CI is not enabled)
