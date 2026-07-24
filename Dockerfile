@@ -45,14 +45,21 @@ RUN awk 'NF' /home/frappe/frappe-bench/sites/apps.txt > /tmp/apps.txt && \
     mv /tmp/apps.txt /home/frappe/frappe-bench/sites/apps.txt && \
     echo "── apps.txt ──" && cat /home/frappe/frappe-bench/sites/apps.txt
 
-# Link the app's public dir into the bench assets dir so /assets/easy_maid/*
-# (including the prebuilt Vue frontend) resolves. `bench build` creates the
-# per-app assets symlink and processes any bundles.
-RUN bench build --app easy_maid
+# NOTE: We deliberately do NOT run `bench build --app easy_maid` here.
+# easy_maid's frontend is prebuilt/committed (easy_maid/public/frontend) and its
+# public files are static, so it needs no esbuild bundling. Running
+# `bench build --app easy_maid` would CREATE a real sites/assets/ dir baked into
+# the image whose assets.json contains ONLY easy_maid's (empty) web-bundle map
+# `{}`, wiping the frappe/erpnext mappings. The frappe-python `seed-sites`
+# initContainer then copies that baked `{}` onto the shared PVC on every pod
+# start, breaking every web bundle (login/website CSS+JS 404). Instead we leave
+# the base image's pristine, complete assets at /home/frappe/frappe-bench/assets
+# untouched; the site-init Job materializes them (plus /assets/easy_maid/*) onto
+# the PVC via `cp -aL`.
 
 # ── Image metadata ──────────────────────────────────────────────────────────
 LABEL org.opencontainers.image.title="Easy Maid Service Bench"
 LABEL org.opencontainers.image.description="Frappe/ERPNext bench with the easy_maid app"
 LABEL org.opencontainers.image.vendor="Trec-Tor Consulting"
 LABEL org.opencontainers.image.source="https://github.com/Trec-TorConsulting/easy-maid-service"
-LABEL org.opencontainers.image.version="0.0.5"
+LABEL org.opencontainers.image.version="0.0.6"
