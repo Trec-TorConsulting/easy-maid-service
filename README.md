@@ -63,8 +63,8 @@ flowchart LR
     T --> N[nginx frontend<br/>serves /assets & /files]
     N -->|dynamic| G[Frappe/ERPNext<br/>gunicorn]
     N -->|/socket.io| S[Frappe socketio]
-    G --> DB[(MariaDB 10.11)]
-    G --> R[(Redis 7.2<br/>cache · queue · socketio)]
+    G --> DB[(MariaDB 10.11.18)]
+    G --> R[(Redis 8<br/>cache · queue · socketio)]
     G --> L[[Longhorn RWX<br/>sites volume]]
     W[Background workers<br/>+ scheduler] --> DB
     W --> R
@@ -82,8 +82,8 @@ workers and the scheduler run recurring jobs (e.g., materializing recurring visi
 | --- | --- |
 | Application | Frappe framework + ERPNext (`frappe/erpnext:version-16`) |
 | Custom app | `easy_maid` (DocTypes, hooks, fixtures, Vue frontend) |
-| Database | MariaDB 10.11 |
-| Cache / queue / realtime | Redis 7.2 (three instances) |
+| Database | MariaDB 10.11.18 |
+| Cache / queue / realtime | Redis 8 (three instances) |
 | Web serving | nginx frontend + gunicorn (WSGI) + socketio |
 | Orchestration | Kubernetes (k3s), raw manifests via Kustomize |
 | Storage | Longhorn — sites **RWX**, database **RWO** |

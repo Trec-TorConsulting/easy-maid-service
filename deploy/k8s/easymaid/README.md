@@ -11,7 +11,7 @@ retargeted to this namespace/host. See `openspec/changes/bootstrap-easy-maid-erp
 - StorageClass: `longhorn` (default). Sites PVC = **RWX**, MariaDB = **RWO**.
 - Ingress: Traefik, cert resolver `letsencrypt` (Let's Encrypt + Cloudflare DNS).
 - Node affinity: **exclude `node05` and `node06`** on every workload.
-- Images: `frappe/erpnext:version-16`, `mariadb:10.11`, `redis:7.2`.
+- Images: `frappe/erpnext:version-16`, `mariadb:10.11.18`, `redis:8-alpine`.
 - Local registry (optional): `registry.registry:5000`.
 
 ## Files to create (checklist)

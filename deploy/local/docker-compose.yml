@@ -29,7 +29,7 @@ x-frappe-common: &frappe-common
 
 services:
   mariadb:
-    image: mariadb:10.11
+    image: mariadb:10.11.18
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -47,21 +47,21 @@ services:
       - easymaid
 
   redis-cache:
-    image: redis:7.2-alpine
+    image: redis:8-alpine
     volumes:
       - redis-cache-data:/data
     networks:
       - easymaid
 
   redis-queue:
-    image: redis:7.2-alpine
+    image: redis:8-alpine
     volumes:
       - redis-queue-data:/data
     networks:
       - easymaid
 
   redis-socketio:
-    image: redis:7.2-alpine
+    image: redis:8-alpine
     volumes:
       - redis-socketio-data:/data
     networks:

@@ -66,7 +66,7 @@ This is a brand‑new, **isolated** instance. It must not touch the existing Fra
 
 ## Impact
 
-- **New infrastructure**: `easymaid` K3s namespace, MariaDB 10.11, 3× Redis 7.2, Frappe
+- **New infrastructure**: `easymaid` K3s namespace, MariaDB 10.11.18, 3× Redis 8, Frappe
   web/socketio/worker/scheduler pods, Longhorn PVCs, Traefik ingress + `letsencrypt` TLS
   for `easymaid.trector.com`. New Kubernetes manifests added to this repo.
 - **New code**: custom Frappe app `easy_maid` (DocTypes, permissions, hooks, Frappe UI frontend).
