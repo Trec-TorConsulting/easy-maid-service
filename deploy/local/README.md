@@ -7,8 +7,8 @@ Kubernetes cluster (`deploy/k8s/easymaid`) is now **production only**.
 
 | Service | Purpose |
 | --- | --- |
-| `mariadb` | MariaDB 10.11 database |
-| `redis-cache` / `redis-queue` / `redis-socketio` | Redis 7.2 instances |
+| `mariadb` | MariaDB 10.11.18 database |
+| `redis-cache` / `redis-queue` / `redis-socketio` | Redis 8 instances |
 | `configurator` | one-shot: writes global bench config |
 | `create-site` | one-shot: creates the site, installs `erpnext` + `easy_maid` |
 | `backend` | Gunicorn web (http://easymaid.localhost:8000) |

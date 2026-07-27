@@ -12,7 +12,7 @@ context: |
   - Custom Frappe app: `easy_maid` (snake_case) layered on top of ERPNext.
   - Frontend: custom Frappe app pages using Frappe UI (Vue) — a single place for
     Owners/Admins, Clients/Customers, and Employees/Cleaners.
-  - Database: MariaDB 10.11. Cache: Redis 7.2 (separate cache/queue/socketio).
+  - Database: MariaDB 10.11.18. Cache: Redis 8 (separate cache/queue/socketio).
   - Deployment: K3s homelab cluster via raw Kubernetes manifests (NOT Helm).
     Manifests live IN THIS repo (MaidService).
   - Namespace: `easymaid` (new/isolated).

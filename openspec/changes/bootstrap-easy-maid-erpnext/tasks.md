@@ -17,8 +17,8 @@
 
 ## 3. Data & cache services
 
-- [x] 3.1 Write MariaDB 10.11 `StatefulSet` + `Service` with a Longhorn RWO volumeClaimTemplate
-- [x] 3.2 Write three Redis 7.2 deployments + services (cache, queue, socketio)
+- [x] 3.1 Write MariaDB 10.11.18 `StatefulSet` + `Service` with a Longhorn RWO volumeClaimTemplate
+- [x] 3.2 Write three Redis 8 deployments + services (cache, queue, socketio)
 - [x] 3.3 Write `pvc-sites.yaml` — Longhorn RWX PVC for the shared sites directory
 - [x] 3.4 Add PDBs for MariaDB and (later) the web deployment
 - **Acceptance:** MariaDB and 3 Redis services reach Ready; sites PVC binds as RWX on `longhorn`.

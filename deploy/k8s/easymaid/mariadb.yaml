@@ -51,7 +51,7 @@ spec:
                 - node06
       containers:
       - name: mariadb
-        image: mariadb:10.11
+        image: mariadb:10.11.18
         imagePullPolicy: IfNotPresent
         env:
         - name: MARIADB_ROOT_PASSWORD

@@ -13,16 +13,16 @@ The system SHALL run as a new, dedicated Frappe + ERPNext instance that is fully
 - **THEN** the existing `frappe` site `client.trector.com` continues to serve unchanged
 
 ### Requirement: Data and cache services
-The system SHALL provision MariaDB 10.11 for the database and three Redis 7.2 instances (cache, queue, socketio), each dedicated to this instance.
+The system SHALL provision MariaDB 10.11.18 for the database and three Redis 8 instances (cache, queue, socketio), each dedicated to this instance.
 
 #### Scenario: Database is provisioned
 - **WHEN** the platform starts
-- **THEN** a MariaDB 10.11 StatefulSet is running with a Longhorn RWO persistent volume
+- **THEN** a MariaDB 10.11.18 StatefulSet is running with a Longhorn RWO persistent volume
 - **AND** its root/app credentials are sourced from a Kubernetes Secret, never hardcoded in manifests
 
 #### Scenario: Redis roles are separated
 - **WHEN** the platform starts
-- **THEN** separate Redis 7.2 services exist for cache, queue, and socketio
+- **THEN** separate Redis 8 services exist for cache, queue, and socketio
 
 ### Requirement: Application workloads
 The system SHALL run the Frappe web/API server, socketio server, background workers, and scheduler as separate workloads.

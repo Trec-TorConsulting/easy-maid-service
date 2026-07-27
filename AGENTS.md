@@ -34,7 +34,7 @@ this project safely and correctly. Follow it literally.
 | --- | --- |
 | Image | `frappe/erpnext:version-16` |
 | Namespace / host | `easymaid` / `easymaid.trector.com` |
-| DB / cache | MariaDB 10.11 / Redis 7.2 (cache, queue, socketio) |
+| DB / cache | MariaDB 10.11.18 / Redis 8 (cache, queue, socketio) |
 | Storage | Longhorn — sites **RWX**, DB **RWO** |
 | Ingress / TLS | Traefik, cert resolver `letsencrypt` |
 | Node affinity | Exclude `node05` and `node06` on all workloads |
