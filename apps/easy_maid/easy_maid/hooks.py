@@ -92,10 +92,9 @@ doc_events = {
 }
 
 # ---------------------------------------------------------------------------
-# Website / frontend (Frappe UI Vue app is served from www/ or a bundled route)
+# Website / frontend (Frappe UI Vue app styles; JS loaded only by dedicated page)
 # ---------------------------------------------------------------------------
 app_include_css = ["/assets/easy_maid/frontend/main.css"]
-app_include_js = ["/assets/easy_maid/frontend/main.js"]
 
 # ---------------------------------------------------------------------------
 # Desk & website branding (Easy Maid)
