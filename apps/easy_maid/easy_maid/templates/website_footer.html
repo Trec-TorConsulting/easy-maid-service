@@ -1,0 +1,64 @@
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-col">
+      <img src="/assets/easy_maid/brand/logo-mark.svg?v=2" alt="Maidurday" height="36" />
+      <p style="margin-top:0.5rem;font-size:0.9rem;">Maidurday Cleaning Service<br />New Jersey, USA</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="/services#standard">Standard Clean</a></li>
+        <li><a href="/services#deep">Deep Clean</a></li>
+        <li><a href="/services#move">Move-In/Out Clean</a></li>
+        <li><a href="/services#recurring">Recurring Clean</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="/about">About Us</a></li>
+        <li><a href="/service-areas">Service Areas</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="/blog">Blog</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Account</h4>
+      <ul>
+        <li><a href="/book">Book Online</a></li>
+        <li><a href="/request-quote">Request a Quote</a></li>
+        <li><a href="/login">Client Login</a></li>
+      </ul>
+      <h4 style="margin-top:1rem;">Legal</h4>
+      <ul>
+        <li><a href="/privacy">Privacy Policy</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="wrap">© {{ frappe.utils.now_datetime().year }} Maidurday Cleaning Service. All rights reserved.</div>
+  </div>
+</footer>
+<style>
+  .site-footer {
+    background: var(--brand-dark);
+    color: #c6f6d5;
+    margin-top: 4rem;
+    padding: 3rem 0 0;
+  }
+  .footer-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 2rem;
+    padding-bottom: 2rem;
+  }
+  .footer-col h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; color: var(--brand-mint); }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: 0.3rem; }
+  .footer-col ul li a { color: #c6f6d5; font-size: 0.9rem; }
+  .footer-col ul li a:hover { color: #fff; }
+  .footer-col p { color: #a5c9b2; font-size: 0.9rem; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding: 1rem 0; font-size: 0.85rem; color: #a5c9b2; }
+</style>

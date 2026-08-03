@@ -1,8 +1,9 @@
 schema: spec-driven
 
 context: |
-  Project: "Easy Maid Service" — a residential/commercial cleaning company back-office
-  and customer portal built on a NEW, SEPARATE Frappe + ERPNext instance.
+  Project: "Maidurday Cleaning Service" (display brand; internal app id `easy_maid`,
+  abbreviation `EMS`) — a residential/commercial cleaning company back-office, public
+  marketing website, and customer portal built on a NEW, SEPARATE Frappe + ERPNext instance.
 
   IMPORTANT: Do NOT touch or reuse the existing Frappe server (namespace `frappe`,
   site client.trector.com). This is a brand-new, isolated instance.

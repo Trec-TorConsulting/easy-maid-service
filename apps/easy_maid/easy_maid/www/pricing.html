@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pricing | Maidurday Cleaning Service NJ</title>
+  <meta name="description" content="Transparent pricing for standard, deep, move-in/out, and recurring cleaning in New Jersey. Book online or request a custom quote." />
+  <link rel="icon" href="/assets/easy_maid/brand/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+{% include "website_styles.html" %}
+{% include "website_nav.html" %}
+
+<main>
+  <div class="page-hero">
+    <div class="wrap">
+      <h1>Simple, Transparent Pricing</h1>
+      <p>No hidden fees. See exactly what you pay before booking. NJ sales tax (6.625%) is applied at checkout.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
+
+        <div class="card pricing-card">
+          <h3>Standard Clean</h3>
+          <div class="price">From <span>$150</span></div>
+          <p>Perfect for regular maintenance of a typical home.</p>
+          <ul>
+            <li>Kitchen &amp; bathrooms</li>
+            <li>All living areas &amp; bedrooms</li>
+            <li>Vacuuming &amp; mopping</li>
+            <li>Trash removal</li>
+          </ul>
+          <a href="/book?service=EMS-STD-CLEAN" class="btn btn-primary" style="margin-top:auto;">Book Now</a>
+        </div>
+
+        <div class="card pricing-card featured-plan">
+          <div class="badge">Most Popular</div>
+          <h3>Recurring Clean</h3>
+          <div class="price">From <span>$130</span> / visit</div>
+          <p>Save on every visit with weekly, biweekly, or monthly service.</p>
+          <ul>
+            <li>Same cleaner each visit</li>
+            <li>Flexible scheduling</li>
+            <li>Cancel with 24h notice</li>
+            <li>Auto-invoicing included</li>
+          </ul>
+          <a href="/book?service=EMS-RECUR-CLEAN&type=Recurring" class="btn btn-primary" style="margin-top:auto;">Set Up Recurring</a>
+        </div>
+
+        <div class="card pricing-card">
+          <h3>Deep Clean</h3>
+          <div class="price">From <span>$275</span></div>
+          <p>Ideal for first cleans, seasonal refreshes, or pre-event prep.</p>
+          <ul>
+            <li>Everything in Standard</li>
+            <li>Inside appliances</li>
+            <li>Baseboards &amp; window sills</li>
+            <li>Inside cabinets</li>
+          </ul>
+          <a href="/book?service=EMS-DEEP-CLEAN" class="btn btn-primary" style="margin-top:auto;">Book Now</a>
+        </div>
+
+        <div class="card pricing-card">
+          <h3>Move-In / Move-Out</h3>
+          <div class="price">From <span>$350</span></div>
+          <p>Full vacant-home clean — landlord ready on the first pass.</p>
+          <ul>
+            <li>Full deep clean</li>
+            <li>All appliances &amp; closets</li>
+            <li>Wall spot-cleaning &amp; fans</li>
+            <li>Custom quote for large homes</li>
+          </ul>
+          <a href="/request-quote" class="btn btn-outline" style="margin-top:auto;">Get a Quote</a>
+        </div>
+
+      </div>
+
+      <div class="addons-box card" style="margin-top:2.5rem;">
+        <h3>Optional Add-Ons</h3>
+        <table class="addon-table">
+          <tbody>
+            <tr><td>Inside Refrigerator</td><td>$35</td><td><a href="/book">Add to booking</a></td></tr>
+            <tr><td>Interior Windows</td><td>Custom</td><td><a href="/request-quote">Request quote</a></td></tr>
+            <tr><td>Laundry (wash &amp; fold)</td><td>Custom</td><td><a href="/request-quote">Request quote</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="tax-note">* All prices are starting rates. Final price depends on home size and specific options selected. NJ sales tax (6.625%) is added at checkout. Prices are computed server-side from the current price list.</p>
+    </div>
+  </section>
+</main>
+
+{% include "website_footer.html" %}
+
+<style>
+  .page-hero { background: linear-gradient(135deg, #1E4F3A, #2d7a55); color: #fff; padding: 3.5rem 0; }
+  .page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .page-hero p { opacity: 0.88; }
+  .pricing-card { display: flex; flex-direction: column; position: relative; padding-top: 1.75rem; }
+  .pricing-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--brand-dark); margin-bottom: 0.5rem; }
+  .pricing-card .price { font-size: 1.5rem; font-weight: 800; color: var(--brand-mid); margin-bottom: 0.5rem; }
+  .pricing-card .price span { color: var(--brand-dark); }
+  .pricing-card p { color: var(--brand-muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
+  .pricing-card ul { list-style: none; padding: 0; margin-bottom: 1.5rem; flex: 1; }
+  .pricing-card ul li { padding: 0.2rem 0; font-size: 0.9rem; color: var(--brand-muted); }
+  .pricing-card ul li::before { content: "✓ "; color: var(--brand-mid); font-weight: 700; }
+  .featured-plan { border-color: var(--brand-mid); box-shadow: 0 4px 24px rgba(91,176,122,0.18); }
+  .badge { position: absolute; top: -1px; right: 1rem; background: var(--brand-mid); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 0 0 var(--radius) var(--radius); }
+  .addons-box h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+  .addon-table { width: 100%; border-collapse: collapse; }
+  .addon-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--brand-line); font-size: 0.9rem; }
+  .addon-table td:last-child a { color: var(--brand-mid); font-weight: 600; }
+  .tax-note { margin-top: 1.5rem; font-size: 0.8rem; color: var(--brand-muted); }
+</style>
+</body>
+</html>

@@ -1,7 +1,8 @@
 ## Context
 
-Easy Maid Service needs one system for owners, clients, and cleaners to run a cleaning
-business. We are standing up a **new, isolated** Frappe + ERPNext instance on an existing
+Maidurday Cleaning Service (built on the custom `easy_maid` app) needs one system for owners,
+clients, and cleaners to run a cleaning business. We are standing up a **new, isolated**
+Frappe + ERPNext instance on an existing
 K3s homelab cluster and adding a thin custom app (`easy_maid`) only for the field‑service
 capabilities ERPNext lacks natively.
 
@@ -30,7 +31,9 @@ Stakeholders: business owners (admin/finance), clients (booking/paying), cleaner
 - Reproducible, GitOps‑friendly Kubernetes manifests stored in this repo.
 
 **Non-Goals:**
-- Reviews/feedback, native mobile apps, marketing site, route/GPS optimization, multi‑company.
+- Post‑clean rating collection, native mobile apps, route/GPS optimization, multi‑company.
+  (A public marketing website IS in scope; the site shows staff‑curated testimonials only,
+  not customer‑submitted ratings.)
 - Reusing or migrating anything from the existing `frappe` instance.
 
 ## Decisions
@@ -114,16 +117,57 @@ All shipping follows the documented Full Deploy workflow (see `docs/FULL-DEPLOY.
 Branch → Commit → Push → complete well‑documented PR → wait/monitor GitHub Actions →
 on green checks, merge to `main` → monitor post‑merge Actions.
 
-### D12: Brand assets (starting point)
-Starter "Easy Maid Service" brand assets (teal badge + amber sparkle, `EM` monogram) live in
-`brand/` (SVG + PNG + `favicon.ico`), generated reproducibly via `brand/generate_assets.py`.
-Marked as placeholders to be replaced with final artwork.
+### D12: Brand assets
+"Maidurday Cleaning Service" brand assets — **green** palette (primary `#5BB07A`→`#1E4F3A`,
+mint accent `#C6F6D5`), a single `M` monogram + sparkle — live in `brand/` (SVG + PNG +
+`favicon`), generated reproducibly via `brand/generate_assets.py`. The **display** brand is
+"Maidurday"; internal identifiers (app `easy_maid`, module "Easy Maid", roles "Easy Maid *",
+abbreviation `EMS`, asset path `/assets/easy_maid/`) intentionally stay unchanged.
 
 ### D13: Security & secrets
 All credentials (DB root/app, admin password, gateway keys) live in Kubernetes Secrets and
 site config, not in manifests or git. TLS enforced end‑to‑end; HTTP→HTTPS redirect.
 Least‑privilege DocType permissions with user‑permission scoping so clients/cleaners only see
 their own records.
+
+### D14: Public website on the same Frappe instance
+Serve the public marketing site from the **same** `easymaid` instance/host using Frappe's
+website layer (portal `www/` Jinja pages and/or Web Page + Blog Post DocTypes), not a separate
+app or host. A shared base template provides the Maidurday header/nav/footer; pages: Home,
+Services, Pricing, About, Contact, Service Areas, FAQ, Privacy, Terms. Blog uses native Blog
+Post/Blog Category; seed 5 posts as **unpublished drafts**. Testimonials are staff‑curated
+content (fixture/DocType), not a public submission form. Add per‑page SEO meta/Open Graph and
+rely on Frappe's generated `sitemap.xml` + a `robots.txt`.
+- **Why:** One deploy, one auth/session domain, native SEO/blog; no extra host to secure.
+- **Alternatives:** Separate static/marketing site (more infra, brand/data drift) — rejected.
+
+### D15: Notifications & reminders — native ERPNext tooling
+Use native **Notification**, **Email Template**, **Print Format**, and **SMS Settings** with
+Email Account(s) for delivery; enqueue sends via background workers. Cleaning‑specific triggers
+(booking confirmation, ~24h visit reminder, receipt on payment, quote acknowledgement) are
+configured as Notifications/scheduled events so admins can edit copy/timing without a code
+deploy. Reminder generation must be **idempotent** (at most one send per event). Provider
+credentials live in Secrets/site config. SMS is optional and gated on a configured provider +
+client consent; marketing email includes unsubscribe.
+- **Why:** Configurable, branded, no bespoke delivery stack; reuses the worker/queue already deployed.
+
+### D16: Self‑service signup & online booking
+Allow a brand‑new prospect to self‑register (portal User + linked Customer, client role only)
+with email verification, then book a one‑time or recurring cleaning end‑to‑end and optionally
+prepay via Stripe hosted checkout — no staff step. Price/tax are always recomputed **server‑side**
+from the Price List + NJ tax template (never trust client totals). Public signup/booking
+endpoints are throttled and anti‑spam protected; out‑of‑area/custom jobs fall back to the
+Request‑a‑Quote (Lead) flow. New users are permission‑scoped to their own records.
+- **Why:** Removes the manual bottleneck for standard jobs while preserving quoting for edge cases.
+
+### D17: Maidurday display branding + Desk declutter
+The **display** brand across Desk, portal, website, and documents is "Maidurday Cleaning
+Service"; internal identifiers stay `easy_maid`/"Easy Maid"/`EMS` (see D12). The ERPNext Desk
+(`/app`, `/desk`) is decluttered to Maidurday‑only: stock Frappe/ERPNext workspaces are hidden
+(reversibly, without removing DocType permissions) and re‑applied after every `bench migrate`
+(migrate re‑syncs stock workspaces). Legacy "Easy Maid Service" display strings in code (e.g.,
+the SPA header) are swept to "Maidurday Cleaning Service".
+- **Why:** Owners/employees get a focused cleaning back office; brand is consistent everywhere.
 
 ## Risks / Trade-offs
 

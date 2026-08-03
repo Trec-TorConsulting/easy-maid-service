@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About Us | Maidurday Cleaning Service NJ</title>
+  <meta name="description" content="Learn about Maidurday Cleaning Service — our story, values, and commitment to professional home cleaning in New Jersey." />
+  <link rel="icon" href="/assets/easy_maid/brand/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+{% include "website_styles.html" %}
+{% include "website_nav.html" %}
+
+<main>
+  <div class="page-hero">
+    <div class="wrap">
+      <h1>About Maidurday</h1>
+      <p>Professional cleaning rooted in trust, reliability, and care for your home.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap content-block">
+      <h2>Our Story</h2>
+      <p>Maidurday Cleaning Service was founded with a simple belief: everyone deserves a clean, comfortable home — without the stress of doing it themselves. Based in New Jersey, we combine professional-grade cleaning standards with the warmth of a local, family-run business.</p>
+      <p>We serve residential clients from single apartments to large family homes, as well as small commercial spaces. Every cleaner on our team is background-checked, trained to our standards, and genuinely cares about the results.</p>
+
+      <h2 style="margin-top:2rem;">Our Values</h2>
+      <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:1rem;">
+        <div class="card">
+          <h4>🔒 Trust &amp; Safety</h4>
+          <p>Background-checked cleaners, insured service, and secure online payments.</p>
+        </div>
+        <div class="card">
+          <h4>✨ Quality First</h4>
+          <p>We follow a consistent checklist on every visit so nothing gets missed.</p>
+        </div>
+        <div class="card">
+          <h4>🤝 Transparency</h4>
+          <p>Upfront pricing, no hidden fees, and clear policies on cancellations and rescheduling.</p>
+        </div>
+        <div class="card">
+          <h4>🌿 Eco-Friendly</h4>
+          <p>We offer green cleaning options using eco-safe products on request.</p>
+        </div>
+      </div>
+
+      <h2 style="margin-top:2.5rem;">Our Team</h2>
+      <p>Our cleaners live and work in the communities they serve. Each one is hired carefully, trained thoroughly, and supported so they can do their best work in your home. When you book with Maidurday, you get a consistent assigned cleaner who learns your preferences over time.</p>
+
+      <div style="margin-top:2.5rem;text-align:center;">
+        <a href="/book" class="btn btn-primary">Book a Clean</a>
+        <a href="/contact" class="btn btn-outline" style="margin-left:0.75rem;">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include "website_footer.html" %}
+
+<style>
+  .page-hero { background: linear-gradient(135deg, #1E4F3A, #2d7a55); color: #fff; padding: 3.5rem 0; }
+  .page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .page-hero p { opacity: 0.88; }
+  .content-block p { color: var(--brand-muted); margin-bottom: 1rem; line-height: 1.7; }
+  .content-block h2 { font-size: 1.5rem; color: var(--brand-dark); margin-bottom: 0.75rem; }
+  .card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .card p { font-size: 0.9rem; color: var(--brand-muted); }
+</style>
+</body>
+</html>

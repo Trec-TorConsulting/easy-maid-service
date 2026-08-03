@@ -48,8 +48,8 @@ The system SHALL present a responsive interface usable on phones and desktops.
 - **THEN** the schedule and job actions are usable without horizontal scrolling
 
 ### Requirement: Consistent branding
-The system SHALL present "Easy Maid Service" branding consistently across the frontend.
+The system SHALL present "Maidurday Cleaning Service" branding consistently across the frontend, with no stray legacy "Easy Maid Service" display text.
 
 #### Scenario: Branded UI
 - **WHEN** any user views the app
-- **THEN** the "Easy Maid Service" name, logo placeholder, and theme are shown
+- **THEN** the "Maidurday Cleaning Service" name, logo, and theme are shown
