@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Service Areas | Maidurday Cleaning Service NJ</title>
+  <meta name="description" content="Maidurday Cleaning Service serves northern and central New Jersey. See the full list of towns and cities we cover." />
+  <link rel="icon" href="/assets/easy_maid/brand/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+{% include "website_styles.html" %}
+{% include "website_nav.html" %}
+
+<main>
+  <div class="page-hero">
+    <div class="wrap">
+      <h1>Service Areas</h1>
+      <p>We serve homes and businesses across northern and central New Jersey.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <p style="color:var(--brand-muted);margin-bottom:2rem;">Not sure if we cover your area? <a href="/contact">Contact us</a> or <a href="/request-quote">request a quote</a> — we expand regularly and may be closer than you think.</p>
+
+      <div class="areas-grid">
+        <div class="card area-group">
+          <h3>Essex County</h3>
+          <ul>
+            <li>Montclair</li>
+            <li>Bloomfield</li>
+            <li>Maplewood</li>
+            <li>South Orange</li>
+            <li>Livingston</li>
+            <li>West Orange</li>
+            <li>Millburn / Short Hills</li>
+          </ul>
+        </div>
+        <div class="card area-group">
+          <h3>Hudson County</h3>
+          <ul>
+            <li>Hoboken</li>
+            <li>Jersey City</li>
+            <li>Bayonne</li>
+            <li>Weehawken</li>
+            <li>North Bergen</li>
+          </ul>
+        </div>
+        <div class="card area-group">
+          <h3>Bergen County</h3>
+          <ul>
+            <li>Hackensack</li>
+            <li>Paramus</li>
+            <li>Ridgewood</li>
+            <li>Teaneck</li>
+            <li>Fort Lee</li>
+          </ul>
+        </div>
+        <div class="card area-group">
+          <h3>Union County</h3>
+          <ul>
+            <li>Summit</li>
+            <li>Westfield</li>
+            <li>Cranford</li>
+            <li>Clark</li>
+            <li>Scotch Plains</li>
+          </ul>
+        </div>
+        <div class="card area-group">
+          <h3>Middlesex County</h3>
+          <ul>
+            <li>New Brunswick</li>
+            <li>Edison</li>
+            <li>Woodbridge</li>
+            <li>East Brunswick</li>
+            <li>Old Bridge</li>
+          </ul>
+        </div>
+        <div class="card area-group">
+          <h3>Morris County</h3>
+          <ul>
+            <li>Morristown</li>
+            <li>Parsippany</li>
+            <li>Denville</li>
+            <li>Madison</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <p>Don't see your town? We may still be able to help.</p>
+        <a href="/request-quote" class="btn btn-primary">Request a Quote</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include "website_footer.html" %}
+
+<style>
+  .page-hero { background: linear-gradient(135deg, #1E4F3A, #2d7a55); color: #fff; padding: 3.5rem 0; }
+  .page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .page-hero p { opacity: 0.88; }
+  .areas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; }
+  .area-group h3 { font-size: 1rem; font-weight: 700; color: var(--brand-dark); margin-bottom: 0.5rem; }
+  .area-group ul { list-style: none; }
+  .area-group ul li { font-size: 0.9rem; color: var(--brand-muted); padding: 0.15rem 0; }
+  .area-group ul li::before { content: "📍 "; font-size: 0.75rem; }
+  .cta-row { margin-top: 2.5rem; padding: 2rem; background: var(--brand-mint); border-radius: var(--radius); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .cta-row p { font-weight: 600; color: var(--brand-dark); }
+</style>
+</body>
+</html>

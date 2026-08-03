@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cleaning Services | Maidurday Cleaning Service NJ</title>
+  <meta name="description" content="Standard, deep, move-in/out, and recurring cleaning services across New Jersey. See what's included with every Maidurday clean." />
+  <link rel="icon" href="/assets/easy_maid/brand/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+{% include "website_styles.html" %}
+{% include "website_nav.html" %}
+
+<main>
+  <div class="page-hero">
+    <div class="wrap">
+      <h1>Our Cleaning Services</h1>
+      <p>Professional residential and commercial cleaning built around your schedule and needs.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+
+      <div class="service-block" id="standard">
+        <h2>Standard Clean</h2>
+        <p class="price-tag">From $150</p>
+        <p>Our most popular service — a thorough clean of all main living areas. Perfect for routine maintenance to keep your home fresh.</p>
+        <h4>What's included:</h4>
+        <ul>
+          <li>Kitchen: countertops, sink, stovetop, microwave exterior, cabinet fronts</li>
+          <li>Bathrooms: toilets, sinks, showers/tubs, mirrors, floors</li>
+          <li>Bedrooms &amp; living areas: dusting, vacuuming, mopping</li>
+          <li>Trash removal from all rooms</li>
+        </ul>
+        <a href="/book" class="btn btn-primary" style="margin-top:1rem;">Book Standard Clean</a>
+      </div>
+
+      <div class="service-block" id="deep">
+        <h2>Deep Clean</h2>
+        <p class="price-tag">From $275</p>
+        <p>Top-to-bottom attention including areas often missed in a regular clean. Ideal for first-time clients or spring cleaning.</p>
+        <h4>Everything in Standard, plus:</h4>
+        <ul>
+          <li>Inside oven and microwave</li>
+          <li>Baseboards, window sills, and door frames</li>
+          <li>Inside cabinets and drawers</li>
+          <li>Appliance exteriors and behind fixtures</li>
+        </ul>
+        <a href="/book" class="btn btn-primary" style="margin-top:1rem;">Book Deep Clean</a>
+      </div>
+
+      <div class="service-block" id="move">
+        <h2>Move-In / Move-Out Clean</h2>
+        <p class="price-tag">From $350</p>
+        <p>Landlord-ready cleaning for vacant properties. Covers the entire home so you can hand over keys with confidence — or receive them in a spotless space.</p>
+        <h4>What's included:</h4>
+        <ul>
+          <li>Full deep clean of all rooms and surfaces</li>
+          <li>Inside all appliances, cabinets, and closets</li>
+          <li>Wall spot-cleaning, light fixtures, fans</li>
+          <li>Garage entry areas and laundry rooms</li>
+        </ul>
+        <a href="/request-quote" class="btn btn-primary" style="margin-top:1rem;">Get a Custom Quote</a>
+      </div>
+
+      <div class="service-block" id="recurring">
+        <h2>Recurring Clean</h2>
+        <p class="price-tag">From $130 / visit</p>
+        <p>Set up weekly, biweekly, or monthly cleaning at a discounted rate. You get a consistent cleaner, flexible scheduling, and can cancel any visit with 24-hour notice.</p>
+        <h4>Benefits:</h4>
+        <ul>
+          <li>Discounted per-visit rate vs one-time pricing</li>
+          <li>Same assigned cleaner builds familiarity with your home</li>
+          <li>Easily pause, reschedule, or cancel via client portal</li>
+          <li>Invoiced automatically — no manual re-booking</li>
+        </ul>
+        <a href="/book" class="btn btn-primary" style="margin-top:1rem;">Set Up Recurring Service</a>
+      </div>
+
+      <div class="service-block" id="addons">
+        <h2>Add-Ons</h2>
+        <p>Customize your clean with optional extras.</p>
+        <ul>
+          <li><strong>Inside Refrigerator</strong> — $35</li>
+          <li><strong>Interior Windows</strong> — ask for a quote</li>
+          <li><strong>Laundry (wash &amp; fold)</strong> — ask for a quote</li>
+        </ul>
+        <a href="/request-quote" class="btn btn-outline" style="margin-top:1rem;">Request Add-Ons</a>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+{% include "website_footer.html" %}
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1E4F3A, #2d7a55);
+    color: #fff;
+    padding: 3.5rem 0;
+  }
+  .page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .page-hero p { opacity: 0.88; font-size: 1.05rem; }
+  .service-block {
+    border: 1px solid var(--brand-line);
+    border-radius: var(--radius);
+    background: var(--brand-panel);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  .service-block h2 { font-size: 1.5rem; color: var(--brand-dark); margin-bottom: 0.25rem; }
+  .price-tag { color: var(--brand-mid); font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem; }
+  .service-block p { color: var(--brand-muted); margin-bottom: 0.75rem; }
+  .service-block h4 { font-weight: 700; margin: 0.75rem 0 0.4rem; }
+  .service-block ul { padding-left: 1.25rem; }
+  .service-block ul li { margin-bottom: 0.25rem; color: var(--brand-muted); font-size: 0.95rem; }
+</style>
+</body>
+</html>

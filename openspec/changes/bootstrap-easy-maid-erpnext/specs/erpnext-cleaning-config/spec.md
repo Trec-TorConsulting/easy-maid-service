@@ -1,11 +1,11 @@
 ## ADDED Requirements
 
 ### Requirement: Company and fiscal setup
-The system SHALL configure a single ERPNext Company "Easy Maid Service" based in **New Jersey, USA** with base currency **USD**, a fiscal year, and a chart of accounts suitable for a service business.
+The system SHALL configure a single ERPNext Company "Maidurday Cleaning Service" (abbreviation `EMS`) based in **New Jersey, USA** with base currency **USD**, a fiscal year, and a chart of accounts suitable for a service business. The display/company name is "Maidurday Cleaning Service"; internal technical identifiers (app `easy_maid`, module "Easy Maid", abbreviation `EMS`) are intentionally unchanged.
 
 #### Scenario: Company exists
 - **WHEN** ERPNext setup completes
-- **THEN** a Company named "Easy Maid Service" exists with country United States, currency USD, and an active fiscal year
+- **THEN** a Company named "Maidurday Cleaning Service" (abbreviation `EMS`) exists with country United States, currency USD, and an active fiscal year
 - **AND** a chart of accounts is assigned with income accounts for cleaning services
 
 ### Requirement: Service catalog
@@ -52,8 +52,23 @@ The system SHALL define role-based access for Owners/Admins, Clients/Customers, 
 - **AND** they cannot access other customers' data or back-office functions
 
 ### Requirement: Branding
-The system SHALL apply "Easy Maid Service" branding (company name, logo placeholder) across the desk, portal, and transactional documents.
+The system SHALL apply "Maidurday Cleaning Service" branding (company name, logo, brand palette) consistently across the Desk, the portal, the public website, and transactional documents. User-facing surfaces MUST show the Maidurday brand; internal technical identifiers (app `easy_maid`, module "Easy Maid", roles "Easy Maid Owner/Client/Cleaner", item-code prefix `EMS-`, asset path `/assets/easy_maid/`) remain unchanged.
 
 #### Scenario: Branding shows
-- **WHEN** a user views the app or a printed invoice/quotation
-- **THEN** the "Easy Maid Service" name and logo placeholder appear
+- **WHEN** a user views the app, the public website, or a printed invoice/quotation
+- **THEN** the "Maidurday Cleaning Service" name and logo appear and no stray "Easy Maid Service" display text is shown
+
+### Requirement: Maidurday-only Desk navigation
+The system SHALL present the ERPNext Desk (`/app`, `/desk`) as a Maidurday cleaning workspace only, hiding stock Frappe/ERPNext modules and workspaces that are not relevant to the cleaning business, for Owners/Admins and Employees who use the Desk. Hiding MUST be reversible and MUST NOT revoke underlying DocType permissions, and it MUST be re-applied after each `bench migrate` (which re-syncs stock workspaces).
+
+#### Scenario: Only Maidurday workspaces are visible
+- **WHEN** an Owner/Admin or Employee opens `/app`
+- **THEN** they see only the Maidurday cleaning workspace(s) and navigation, and stock ERPNext workspaces (e.g., Buying, Manufacturing, Stock, Assets, Quality) are hidden
+
+#### Scenario: Declutter survives migration
+- **WHEN** `bench migrate` re-syncs the stock workspaces
+- **THEN** the Maidurday-only navigation is automatically re-applied so stock workspaces do not reappear
+
+#### Scenario: Hiding does not remove access
+- **WHEN** a workspace is hidden from the Desk
+- **THEN** users with the appropriate role can still open the underlying DocTypes directly, and no permission is silently removed

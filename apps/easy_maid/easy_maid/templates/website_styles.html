@@ -1,0 +1,51 @@
+<style>
+  :root {
+    --brand-dark: #1E4F3A;
+    --brand-mid: #5BB07A;
+    --brand-mint: #C6F6D5;
+    --brand-bg: #f9faf8;
+    --brand-panel: #ffffff;
+    --brand-text: #1a2e26;
+    --brand-muted: #4a6459;
+    --brand-line: #d1e7db;
+    --brand-cta: #1E4F3A;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "DM Sans", "Segoe UI", sans-serif;
+    background: var(--brand-bg);
+    color: var(--brand-text);
+    line-height: 1.6;
+  }
+  a { color: var(--brand-dark); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { width: min(1100px, 94vw); margin: 0 auto; }
+  .btn {
+    display: inline-block;
+    padding: 0.65rem 1.4rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    font-size: 0.95rem;
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.88; text-decoration: none; }
+  .btn-primary { background: var(--brand-cta); color: #fff; border-color: var(--brand-cta); }
+  .btn-outline { background: transparent; color: var(--brand-dark); border-color: var(--brand-dark); }
+  .section { padding: 4rem 0; }
+  .section-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .section-sub { color: var(--brand-muted); margin-bottom: 2.5rem; }
+  .card-grid { display: grid; gap: 1.5rem; }
+  .card {
+    background: var(--brand-panel);
+    border: 1px solid var(--brand-line);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+  @media (max-width: 640px) {
+    .section-title { font-size: 1.5rem; }
+    .btn { width: 100%; text-align: center; display: block; }
+  }
+</style>

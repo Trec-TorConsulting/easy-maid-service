@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book a Clean | Maidurday Cleaning Service NJ</title>
+  <meta name="description" content="Book a professional home cleaning online. Choose your service, schedule, and pay securely — no phone call needed." />
+  <link rel="icon" href="/assets/easy_maid/brand/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+{% include "website_styles.html" %}
+{% include "website_nav.html" %}
+
+<main>
+  <div class="page-hero">
+    <div class="wrap">
+      <h1>Book a Clean Online</h1>
+      <p>Create a free account or log in to book. Prices are calculated server-side including NJ sales tax.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap booking-layout">
+
+      <div id="auth-check">
+        <p style="text-align:center;color:var(--brand-muted);padding:2rem 0;">Checking your session…</p>
+      </div>
+
+      <!-- Shown when user is not logged in -->
+      <div id="signup-panel" style="display:none;">
+        <div class="panel-tabs">
+          <button class="tab-btn active" onclick="switchTab('signup')">New Customer</button>
+          <button class="tab-btn" onclick="switchTab('login')">Existing Customer</button>
+        </div>
+
+        <div id="signup-form-wrap">
+          <h2>Create Your Free Account</h2>
+          <form id="signup-form">
+            <label for="s_name">Full name</label>
+            <input id="s_name" name="full_name" required />
+            <label for="s_email">Email</label>
+            <input id="s_email" type="email" name="email" required />
+            <label for="s_pass">Password (min 8 characters)</label>
+            <input id="s_pass" type="password" name="password" required minlength="8" />
+            <button type="submit" class="btn btn-primary" style="margin-top:1rem;width:100%;">Create Account &amp; Continue</button>
+            <p id="signup-status" style="margin-top:0.75rem;"></p>
+          </form>
+        </div>
+
+        <div id="login-form-wrap" style="display:none;">
+          <h2>Log In to Your Account</h2>
+          <p><a href="/login?redirect-to=/book">Log in via the Frappe portal →</a></p>
+        </div>
+      </div>
+
+      <!-- Shown when user is logged in and has client role -->
+      <div id="booking-panel" style="display:none;">
+        <h2>Book Your Clean</h2>
+        <form id="booking-form">
+          <label for="b_service">Service</label>
+          <select id="b_service" name="service" required>
+            <option value="">Select a service…</option>
+            <option value="EMS-STD-CLEAN">Standard Clean – from $150</option>
+            <option value="EMS-DEEP-CLEAN">Deep Clean – from $275</option>
+            <option value="EMS-MOVE-IN-OUT">Move-In/Out Clean – from $350</option>
+            <option value="EMS-RECUR-CLEAN">Recurring Clean – from $130/visit</option>
+          </select>
+
+          <label for="b_type">Booking type</label>
+          <select id="b_type" name="booking_type" required>
+            <option value="One-time">One-time</option>
+            <option value="Recurring">Recurring</option>
+          </select>
+
+          <div id="onetime-fields">
+            <label for="b_date">Preferred date</label>
+            <input id="b_date" type="date" name="scheduled_date" />
+          </div>
+
+          <div id="recurring-fields" style="display:none;">
+            <label for="b_freq">Frequency</label>
+            <select id="b_freq" name="frequency">
+              <option value="Weekly">Weekly</option>
+              <option value="Biweekly" selected>Biweekly</option>
+              <option value="Monthly">Monthly</option>
+            </select>
+            <label for="b_start">Start date</label>
+            <input id="b_start" type="date" name="start_date" />
+          </div>
+
+          <label for="b_addr">Service address</label>
+          <input id="b_addr" name="service_address" placeholder="123 Main St, Montclair NJ" required />
+
+          <div id="estimate-box" class="card" style="margin-top:1rem;display:none;">
+            <h4>Price Estimate</h4>
+            <div id="estimate-detail"></div>
+          </div>
+
+          <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <button type="button" class="btn btn-outline" onclick="fetchEstimate()">Get Estimate</button>
+            <button type="submit" class="btn btn-primary">Confirm Booking</button>
+          </div>
+          <p id="booking-status" style="margin-top:0.75rem;"></p>
+        </form>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+{% include "website_footer.html" %}
+
+<style>
+  .page-hero { background: linear-gradient(135deg, #1E4F3A, #2d7a55); color: #fff; padding: 3.5rem 0; }
+  .page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .page-hero p { opacity: 0.88; }
+  .booking-layout { max-width: 560px; }
+  .panel-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border: 1px solid var(--brand-line); border-radius: var(--radius); overflow: hidden; }
+  .tab-btn { flex: 1; padding: 0.65rem; border: none; background: var(--brand-bg); cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+  .tab-btn.active { background: var(--brand-dark); color: #fff; }
+  label { display: block; font-weight: 600; margin: 0.8rem 0 0.25rem; font-size: 0.9rem; }
+  input, select {
+    width: 100%;
+    border: 1px solid var(--brand-line);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font: inherit;
+    background: var(--brand-bg);
+  }
+  #estimate-box h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; }
+  #estimate-detail p { font-size: 0.9rem; color: var(--brand-muted); margin: 0.1rem 0; }
+  #estimate-detail .total { font-weight: 700; color: var(--brand-dark); border-top: 1px solid var(--brand-line); padding-top: 0.3rem; margin-top: 0.3rem; }
+</style>
+
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0) === (tab === 'signup')));
+    document.getElementById('signup-form-wrap').style.display = tab === 'signup' ? '' : 'none';
+    document.getElementById('login-form-wrap').style.display = tab === 'login' ? '' : 'none';
+  }
+
+  document.getElementById('b_type').addEventListener('change', function() {
+    const rec = this.value === 'Recurring';
+    document.getElementById('recurring-fields').style.display = rec ? '' : 'none';
+    document.getElementById('onetime-fields').style.display = rec ? 'none' : '';
+  });
+
+  async function checkSession() {
+    try {
+      const res = await fetch('/api/method/easy_maid.easy_maid.api.current_portal_role');
+      const data = await res.json();
+      const info = data.message || data;
+      document.getElementById('auth-check').style.display = 'none';
+      if (info.authenticated && info.role) {
+        document.getElementById('booking-panel').style.display = '';
+      } else {
+        document.getElementById('signup-panel').style.display = '';
+      }
+    } catch {
+      document.getElementById('auth-check').innerHTML = '<p>Could not check session. <a href="/login?redirect-to=/book">Log in</a>.</p>';
+    }
+  }
+  checkSession();
+
+  async function fetchEstimate() {
+    const service = document.getElementById('b_service').value;
+    if (!service) { alert('Please select a service first.'); return; }
+    const res = await fetch('/api/method/easy_maid.easy_maid.api.get_booking_estimate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: [{ item_code: service, qty: 1 }] }),
+    });
+    const data = await res.json();
+    const est = data.message || data;
+    if (est.grand_total) {
+      document.getElementById('estimate-box').style.display = '';
+      document.getElementById('estimate-detail').innerHTML =
+        est.line_items.map(li => `<p>${li.item_name}: $${li.amount}</p>`).join('') +
+        `<p>Tax (${est.tax_rate}%): $${est.tax_amount}</p>` +
+        `<p class="total">Total: $${est.grand_total}</p>`;
+    }
+  }
+
+  document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('signup-status');
+    status.textContent = 'Creating account…';
+    const fd = new FormData(e.target);
+    try {
+      const res = await fetch('/api/method/easy_maid.easy_maid.api.register_client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: fd.get('full_name'), email: fd.get('email'), password: fd.get('password') }),
+      });
+      const data = await res.json();
+      if (data.exc) throw new Error(data.exc_type || 'Registration failed.');
+      const msg = data.message || data;
+      if (msg.ok) {
+        status.textContent = msg.message || 'Account created! Please verify your email, then log in.';
+        status.style.color = 'var(--brand-mid)';
+      } else {
+        throw new Error('Registration failed.');
+      }
+    } catch (err) {
+      status.textContent = err.message || 'Registration failed. Please try again.';
+      status.style.color = '#dc2626';
+    }
+  });
+
+  document.getElementById('booking-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('booking-status');
+    status.textContent = 'Submitting booking…';
+    const fd = new FormData(e.target);
+    const bookingType = fd.get('booking_type');
+    const payload = {
+      service_address: fd.get('service_address'),
+      booking_type: bookingType,
+      services: [{ item_code: fd.get('service'), qty: 1 }],
+      scheduled_date: bookingType === 'One-time' ? fd.get('scheduled_date') : null,
+      frequency: bookingType === 'Recurring' ? fd.get('frequency') : null,
+      start_date: bookingType === 'Recurring' ? fd.get('start_date') : null,
+      pay_now: false,
+    };
+    try {
+      const res = await fetch('/api/method/easy_maid.easy_maid.api.submit_online_booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Frappe-CSRF-Token': frappe && frappe.csrf_token || 'fetch' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.exc) throw new Error('Booking failed. Please try again.');
+      const result = data.message || data;
+      status.textContent = `Booking confirmed! Reference: ${result.booking}`;
+      status.style.color = 'var(--brand-mid)';
+      e.target.reset();
+      document.getElementById('estimate-box').style.display = 'none';
+    } catch (err) {
+      status.textContent = err.message || 'Booking failed.';
+      status.style.color = '#dc2626';
+    }
+  });
+</script>
+</body>
+</html>

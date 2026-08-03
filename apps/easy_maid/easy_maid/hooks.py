@@ -48,6 +48,9 @@ scheduler_events = {
 	"daily": [
 		"easy_maid.easy_maid.tasks.generate_recurring_visits",
 	],
+	"hourly": [
+		"easy_maid.easy_maid.notifications.send_visit_reminders",
+	],
 }
 
 # ---------------------------------------------------------------------------
@@ -74,6 +77,17 @@ doc_events = {
 	"Service Visit": {
 		"before_cancel": "easy_maid.easy_maid.booking_policy.enforce_24h_notice",
 		"validate": "easy_maid.easy_maid.booking_policy.validate_reschedule_window",
+		"after_insert": "easy_maid.easy_maid.notifications.send_cleaner_assignment_notification",
+		"on_update": "easy_maid.easy_maid.notifications.send_cleaner_assignment_notification",
+	},
+	"Booking": {
+		"after_insert": "easy_maid.easy_maid.notifications.send_booking_confirmation",
+	},
+	"Sales Invoice": {
+		"on_submit": "easy_maid.easy_maid.notifications.send_invoice_notification",
+	},
+	"Payment Entry": {
+		"on_submit": "easy_maid.easy_maid.notifications.send_payment_receipt",
 	},
 }
 

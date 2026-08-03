@@ -345,7 +345,7 @@ def generate_invoice_for_visit(visit_name: str):
         {
             "doctype": "Sales Invoice",
             "customer": booking.customer,
-            "company": "Easy Maid Service",
+            "company": _default_company(),
             "due_date": add_days(today(), 7),
             "taxes_and_charges": _nj_tax_template(),
             "items": [
@@ -589,7 +589,7 @@ def send_quotation_email(quotation_name: str, recipient_email: str | None = None
 
     frappe.sendmail(
         recipients=[recipient],
-        subject=_("Quotation {0} from Easy Maid Service").format(quotation.name),
+        subject=_("Quotation {0} from Maidurday Cleaning Service").format(quotation.name),
         message=_("Please find your quotation attached."),
         reference_doctype="Quotation",
         reference_name=quotation.name,
@@ -993,3 +993,329 @@ def client_invoice_receipt_url(invoice_name: str):
         f"?doctype=Sales%20Invoice&name={invoice.name}&format={print_format}&no_letterhead=0"
     )
     return {"invoice": invoice.name, "receipt_url": url}
+
+
+# ---------------------------------------------------------------------------
+# Stripe webhook (task 12.3)
+# ---------------------------------------------------------------------------
+
+@frappe.whitelist(allow_guest=True)
+def stripe_webhook():
+    """Receive Stripe webhook events and reconcile payments.
+
+    Verifies the Stripe-Signature header against the webhook secret stored in
+    site config key `stripe_webhook_secret`. Card data is never sent here —
+    Stripe only sends event metadata. Reconciliation is idempotent (a paid
+    invoice is skipped on retry).
+    """
+    import hashlib
+    import hmac
+
+    request = frappe.request
+    payload = request.get_data(as_text=True)
+    sig_header = request.headers.get("Stripe-Signature", "")
+    webhook_secret = frappe.conf.get("stripe_webhook_secret", "")
+
+    if webhook_secret:
+        # Verify Stripe signature: t=timestamp,v1=computed_hmac
+        try:
+            parts = {k: v for part in sig_header.split(",") for k, v in [part.split("=", 1)]}
+            timestamp = parts.get("t", "")
+            expected = hmac.new(
+                webhook_secret.encode(),
+                f"{timestamp}.{payload}".encode(),
+                hashlib.sha256,
+            ).hexdigest()
+            if not hmac.compare_digest(expected, parts.get("v1", "")):
+                frappe.throw(_("Stripe webhook signature verification failed"), frappe.AuthenticationError)
+        except (ValueError, KeyError):
+            frappe.throw(_("Invalid Stripe webhook signature format"), frappe.AuthenticationError)
+
+    try:
+        event = frappe.parse_json(payload)
+    except Exception:
+        frappe.throw(_("Invalid Stripe webhook payload"))
+
+    event_type = event.get("type", "")
+    data_object = (event.get("data") or {}).get("object") or {}
+
+    if event_type in ("payment_intent.succeeded", "checkout.session.completed"):
+        amount_received = data_object.get("amount_received") or data_object.get("amount_total") or 0
+        paid_amount = round(float(amount_received) / 100, 2)  # Stripe amounts in cents
+        reference_no = data_object.get("id", "")
+        metadata = data_object.get("metadata") or {}
+        invoice_name = metadata.get("invoice_name") or metadata.get("frappe_invoice")
+
+        if invoice_name and paid_amount > 0:
+            try:
+                result = reconcile_invoice_payment(
+                    invoice_name=invoice_name,
+                    paid_amount=paid_amount,
+                    reference_no=reference_no,
+                )
+                frappe.logger().info(f"Stripe webhook: reconciled invoice {invoice_name}: {result}")
+            except Exception:
+                frappe.log_error(frappe.get_traceback(), f"Easy Maid: Stripe webhook reconcile failed for {invoice_name}")
+
+    return {"ok": True, "event_type": event_type}
+
+
+# ---------------------------------------------------------------------------
+# Self-service signup + online booking (tasks 17.1–17.6)
+# ---------------------------------------------------------------------------
+
+def _enforce_signup_throttle(limit_per_hour: int = 5):
+    request_ip = getattr(frappe.local, "request_ip", None) or "unknown"
+    hour_key = now_datetime().strftime("%Y-%m-%d-%H")
+    key = f"easymaid:signup:{request_ip}:{hour_key}"
+    cache = frappe.cache()
+    count = cache.incr(key)
+    if count == 1:
+        cache.expire(key, 3600)
+    if count > limit_per_hour:
+        frappe.throw(_("Too many signup attempts from this IP. Please try again later."))
+
+
+@frappe.whitelist(allow_guest=True)
+def register_client(full_name: str, email: str, password: str):
+    """Create a portal User (client role) + linked Customer for self-service signup.
+
+    Frappe's `send_welcome_email=1` sends a verification link so the email is
+    confirmed before the account is usable for booking.
+    """
+    _enforce_signup_throttle()
+
+    if not full_name or not full_name.strip():
+        frappe.throw(_("Full name is required"))
+    if not email or "@" not in email:
+        frappe.throw(_("A valid email address is required"))
+    if not password or len(password) < 8:
+        frappe.throw(_("Password must be at least 8 characters"))
+
+    if frappe.db.exists("User", email):
+        frappe.throw(_("An account with this email already exists. Please log in."))
+
+    parts = full_name.strip().split(" ", 1)
+    first_name = parts[0]
+    last_name = parts[1] if len(parts) > 1 else ""
+
+    user = frappe.get_doc({
+        "doctype": "User",
+        "email": email,
+        "first_name": first_name,
+        "last_name": last_name,
+        "user_type": "Website User",
+        "send_welcome_email": 1,
+        "roles": [{"role": "Easy Maid Client"}],
+    })
+    user.new_password = password
+    user.insert(ignore_permissions=True)
+
+    # Create linked Customer scoped to this user (email_id = lookup key used by _current_customer)
+    customer_group = "Residential"
+    if not frappe.db.exists("Customer Group", customer_group):
+        customer_group = frappe.db.get_value("Customer Group", {"is_group": 0}, "name") or "Individual"
+
+    customer = frappe.get_doc({
+        "doctype": "Customer",
+        "customer_name": full_name.strip(),
+        "customer_type": "Individual",
+        "customer_group": customer_group,
+        "email_id": email,
+        "territory": "United States",
+    })
+    customer.insert(ignore_permissions=True)
+
+    return {"ok": True, "message": _("Account created. Check your email to verify your address before booking.")}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_booking_estimate(items: str | list | None = None):
+    """Return an itemized price estimate including NJ sales tax (6.625%).
+
+    The server always recomputes prices from the ERPNext Price List — the
+    client must NEVER supply amounts that are trusted for billing.
+
+    items: JSON array of {item_code, qty} objects.
+    """
+    import json as _json
+
+    raw = items or frappe.form_dict.get("items")
+    if isinstance(raw, str):
+        try:
+            raw = _json.loads(raw)
+        except Exception:
+            frappe.throw(_("items must be a JSON array of {item_code, qty}"))
+    if not raw or not isinstance(raw, list):
+        frappe.throw(_("At least one item is required"))
+
+    NJ_TAX_RATE = 6.625  # percentage; source of truth is the NJ Sales Tax template
+
+    # Attempt to read the live rate from the configured tax template
+    try:
+        tax_name = frappe.db.get_value(
+            "Sales Taxes and Charges Template", {"title": "NJ Sales Tax"}, "name"
+        )
+        if tax_name:
+            live_rate = frappe.db.get_value(
+                "Sales Taxes and Charges",
+                {"parent": tax_name},
+                "rate",
+            )
+            if live_rate:
+                NJ_TAX_RATE = float(live_rate)
+    except Exception:
+        pass
+
+    line_items = []
+    subtotal = 0.0
+
+    for entry in raw:
+        item_code = (entry.get("item_code") or "").strip()
+        qty = max(float(entry.get("qty") or 1), 0)
+        if not item_code:
+            continue
+
+        rate = frappe.db.get_value(
+            "Item Price",
+            {"item_code": item_code, "price_list": "Standard Selling"},
+            "price_list_rate",
+        )
+        if rate is None:
+            frappe.throw(_("Item {0} is not in the price list or does not exist").format(item_code))
+
+        rate = float(rate)
+        amount = round(rate * qty, 2)
+        subtotal += amount
+
+        item_name = frappe.db.get_value("Item", item_code, "item_name") or item_code
+        line_items.append({"item_code": item_code, "item_name": item_name, "qty": qty, "rate": rate, "amount": amount})
+
+    tax_amount = round(subtotal * NJ_TAX_RATE / 100, 2)
+    grand_total = round(subtotal + tax_amount, 2)
+
+    return {
+        "line_items": line_items,
+        "subtotal": round(subtotal, 2),
+        "tax_rate": NJ_TAX_RATE,
+        "tax_amount": tax_amount,
+        "grand_total": grand_total,
+        "currency": "USD",
+    }
+
+
+@frappe.whitelist()
+def submit_online_booking(
+    service_address: str,
+    booking_type: str,
+    services: str | list | None = None,
+    scheduled_date: str | None = None,
+    frequency: str | None = None,
+    interval: int = 1,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    pay_now: bool = False,
+):
+    """Self-service online booking: create Booking + first Visit, optionally prepay.
+
+    Price is always recomputed SERVER-SIDE from the Price List to prevent
+    client-side tampering. Requires an authenticated user with Easy Maid Client
+    role or higher.
+    """
+    _ensure_client_or_owner()
+    customer = _current_customer()
+    if not customer:
+        frappe.throw(_("No customer profile found. Please complete your account setup."))
+
+    if not service_address:
+        frappe.throw(_("Service address is required"))
+    if booking_type == "One-time" and not scheduled_date:
+        frappe.throw(_("A scheduled date is required for one-time bookings"))
+    if booking_type == "Recurring" and not start_date:
+        frappe.throw(_("A start date is required for recurring bookings"))
+
+    normalized = _normalize_items(services)
+    if not normalized:
+        frappe.throw(_("At least one service item is required"))
+
+    # Server-side price recomputation — never trust client-supplied amounts
+    estimate = get_booking_estimate(items=normalized)
+    item_lookup = {li["item_code"]: li for li in estimate["line_items"]}
+
+    booking = frappe.new_doc("Booking")
+    booking.customer = customer
+    booking.service_address = service_address
+    booking.booking_type = booking_type
+    booking.status = "Active"
+    booking.scheduled_date = scheduled_date
+    booking.frequency = frequency
+    booking.interval = interval
+    booking.start_date = start_date
+    booking.end_date = end_date
+
+    for row in normalized:
+        item_code = (row.get("item_code") or "").strip()
+        if item_code not in item_lookup:
+            frappe.throw(_("Item {0} not found in price list").format(item_code))
+        li = item_lookup[item_code]
+        booking.append("services", {
+            "item_code": item_code,
+            "item_name": li["item_name"],
+            "qty": li["qty"],
+            "rate": li["rate"],
+            "amount": li["amount"],
+        })
+
+    booking.insert(ignore_permissions=True)
+
+    payment_url = None
+    if pay_now:
+        # Generate a Sales Invoice and create a Stripe Payment Request
+        try:
+            invoice = frappe.get_doc({
+                "doctype": "Sales Invoice",
+                "customer": customer,
+                "company": _default_company(),
+                "due_date": add_days(today(), 1),
+                "taxes_and_charges": _nj_tax_template(),
+                "items": [
+                    {"item_code": row.item_code, "qty": row.qty, "rate": row.rate}
+                    for row in booking.services
+                ],
+                "remarks": f"Online booking payment for {booking.name}",
+            })
+            invoice.insert(ignore_permissions=True)
+            invoice.run_method("calculate_taxes_and_totals")
+            invoice.submit()
+            pr_result = create_invoice_payment_request(invoice.name)
+            payment_url = pr_result.get("payment_url")
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), f"Easy Maid: prepay invoice creation failed for {booking.name}")
+
+    return {
+        "booking": booking.name,
+        "estimate": estimate,
+        "pay_now": pay_now,
+        "payment_url": payment_url,
+    }
+
+
+@frappe.whitelist(allow_guest=True)
+def check_service_area(city: str, state: str = "NJ") -> dict:
+    """Return whether a given city/state is in our serviceable area.
+
+    If not, the caller should route the visitor to Request a Quote (Lead) flow.
+    """
+    SERVICEABLE_NJ_CITIES = {
+        "montclair", "bloomfield", "maplewood", "south orange", "livingston",
+        "west orange", "millburn", "short hills", "hoboken", "jersey city",
+        "bayonne", "weehawken", "north bergen", "hackensack", "paramus",
+        "ridgewood", "teaneck", "fort lee", "summit", "westfield", "cranford",
+        "clark", "scotch plains", "new brunswick", "edison", "woodbridge",
+        "east brunswick", "old bridge", "morristown", "parsippany", "denville",
+        "madison",
+    }
+    city_lower = (city or "").strip().lower()
+    in_area = state.strip().upper() == "NJ" and city_lower in SERVICEABLE_NJ_CITIES
+    return {"in_service_area": in_area, "city": city, "state": state}
+

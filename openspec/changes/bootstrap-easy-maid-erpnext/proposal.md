@@ -1,6 +1,7 @@
 ## Why
 
-Easy Maid Service needs a single system where **owners**, **clients**, and **cleaners**
+Maidurday Cleaning Service (built on the custom `easy_maid` app) needs a single system where
+**owners**, **clients**, and **cleaners**
 run the entire cleaning business: capturing leads, quoting jobs, booking one‑time and
 recurring cleanings, dispatching crews, invoicing, taking payments, running payroll, and
 keeping the books. Rather than stitch together point tools, we stand up a dedicated
@@ -28,6 +29,15 @@ This is a brand‑new, **isolated** instance. It must not touch the existing Fra
 - Enable **native HR** for cleaner records, shifts, and payroll.
 - Build a **single Frappe UI (Vue) frontend** serving three role‑based experiences:
   Owners/Admins, Clients/Customers, Employees/Cleaners.
+- Build a **public marketing website** (Home, Services, Pricing, About, Contact, Service
+  Areas, FAQ, legal, curated testimonials, and a blog seeded with draft articles) served
+  from the same instance and fully **Maidurday**‑branded.
+- Add **self‑service signup + online booking** so brand‑new customers can create an account,
+  book a one‑time or recurring cleaning, and pay online without a staff step.
+- Add **email/SMS notifications & reminders** (confirmations, visit reminders, receipts,
+  quote acknowledgements) using native ERPNext notification tooling.
+- **Declutter the ERPNext Desk** to a Maidurday‑only experience for owners/employees,
+  hiding the stock Frappe/ERPNext modules.
 
 ### Native ERPNext vs. custom (`easy_maid`)
 
@@ -39,6 +49,10 @@ This is a brand‑new, **isolated** instance. It must not touch the existing Fra
 | Invoicing & payments | Sales Invoice, Payment Entry, Payment Gateway, GL | none |
 | Employee mgmt & payroll | Employee, Shift, Salary/Payroll | cleaner skills/service‑area fields |
 | Frontend | Portal/Desk | **Frappe UI (Vue)** unified app |
+| Public website | Website / Web Page, Blog Post, Web Form | branded Maidurday pages, blog seed, testimonials |
+| Self‑service booking | Portal signup, Sales Order, Payment | new‑customer signup + online booking/pay flow |
+| Notifications & reminders | Notification, Email/Print templates, SMS Settings | cleaning triggers (visit reminders, receipts) |
+| Desk experience | Workspaces / Desk | Maidurday‑only declutter + branding |
 
 ## Capabilities
 
@@ -51,17 +65,20 @@ This is a brand‑new, **isolated** instance. It must not touch the existing Fra
 - `invoicing-and-payments`: Native Sales Invoice, online payment collection, and double‑entry bookkeeping.
 - `employee-management-payroll`: Native ERPNext HR for cleaner records, shifts, and payroll.
 - `customer-portal-frontend`: Single Frappe UI (Vue) frontend with role‑based experiences for owners, clients, and cleaners.
+- `public-website`: Public, Maidurday‑branded marketing site (Home, Services, Pricing, About, Contact, Service Areas, FAQ, legal, curated testimonials, and a blog seeded with drafts) served from the same instance.
+- `notifications-and-reminders`: Email/SMS confirmations, visit reminders, receipts, and quote acknowledgements via native ERPNext notification tooling.
+- `self-service-signup-and-booking`: New customers self‑register, book one‑time/recurring cleanings, and pay online with no staff step.
 
 ### Modified Capabilities
 <!-- None. This is a greenfield project; no existing specs. -->
 
 ## Non-goals
 
-- **Reviews & feedback** (post‑clean ratings) — deferred past day one.
-- Mobile native apps (the Frappe UI web app is responsive; no iOS/Android build).
-- Marketing website / public content site (only the web‑to‑lead form is in scope).
+- **Post‑clean rating collection** — customers submitting star ratings/feedback after a
+  clean is out of scope. (The public website shows **staff‑curated** testimonials only.)
+- Mobile native apps (the Frappe UI web app and website are responsive; no iOS/Android build).
 - Migrating or integrating any data from the existing `frappe` instance.
-- Multi‑company / franchise support beyond the single "Easy Maid Service" company.
+- Multi‑company / franchise support beyond the single "Maidurday Cleaning Service" company.
 - Route optimization / GPS tracking of crews.
 
 ## Impact

@@ -1,0 +1,68 @@
+<nav class="site-nav">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="/home">
+      <img src="/assets/easy_maid/brand/logo-mark.svg?v=2" alt="Maidurday" height="34" />
+      <span>Maidurday</span>
+    </a>
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle navigation">☰</button>
+    <ul class="nav-links">
+      <li><a href="/services">Services</a></li>
+      <li><a href="/pricing">Pricing</a></li>
+      <li><a href="/service-areas">Service Areas</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/faq">FAQ</a></li>
+      <li><a href="/contact">Contact</a></li>
+      <li><a class="btn btn-outline" href="/request-quote" style="padding:0.4rem 1rem;">Get a Quote</a></li>
+      <li><a class="btn btn-primary" href="/book" style="padding:0.4rem 1rem;">Book Online</a></li>
+    </ul>
+  </div>
+</nav>
+<style>
+  .site-nav {
+    background: var(--brand-panel);
+    border-bottom: 1px solid var(--brand-line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(30,79,58,0.06);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--brand-dark);
+    white-space: nowrap;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .nav-links li a { font-size: 0.9rem; color: var(--brand-text); padding: 0.25rem 0.5rem; }
+  .nav-toggle { display: none; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--brand-dark); margin-left: auto; }
+  @media (max-width: 768px) {
+    .nav-toggle { display: block; }
+    .nav-links {
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      padding: 0.75rem 0;
+      gap: 0.25rem;
+    }
+    .nav-links.open { display: flex; }
+    .nav-links li { width: 100%; }
+    .nav-links li a.btn { width: 100%; text-align: center; display: block; }
+  }
+</style>

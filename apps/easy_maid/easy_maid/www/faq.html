@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ | Maidurday Cleaning Service NJ</title>
+  <meta name="description" content="Frequently asked questions about Maidurday Cleaning Service — booking, pricing, cancellations, and what's included." />
+  <link rel="icon" href="/assets/easy_maid/brand/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+{% include "website_styles.html" %}
+{% include "website_nav.html" %}
+
+<main>
+  <div class="page-hero">
+    <div class="wrap">
+      <h1>Frequently Asked Questions</h1>
+      <p>Everything you need to know about booking and working with Maidurday.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap faq-list">
+
+      <details class="faq-item">
+        <summary>How do I book a cleaning?</summary>
+        <p>You can book online 24/7 at <a href="/book">maidurday.com/book</a>. Create a free account, choose your service and date, and pay securely via Stripe. You'll get an instant confirmation email.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>What's included in a Standard Clean?</summary>
+        <p>Standard Clean covers kitchen (countertops, sink, stovetop, microwave exterior, cabinet fronts), bathrooms (toilet, sink, shower/tub, mirrors, floors), and all living areas and bedrooms (dusting, vacuuming, mopping, trash removal). See our <a href="/services">Services page</a> for the full checklist.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>What's the difference between a Standard and a Deep Clean?</summary>
+        <p>A Deep Clean includes everything in a Standard Clean plus inside appliances (oven, microwave), baseboards and window sills, inside cabinets and drawers, and hard-to-reach spots. It's ideal for first-time clients or a thorough seasonal refresh.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>How do recurring plans work?</summary>
+        <p>Select weekly, biweekly, or monthly frequency when booking. You'll get a discounted rate and a consistent assigned cleaner. Each visit is automatically invoiced. You can cancel any individual visit with at least 24 hours' notice through your client portal — no penalty.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>What is the cancellation / reschedule policy?</summary>
+        <p>We require at least <strong>24 hours' notice</strong> to cancel or reschedule a visit. You can do this anytime from your client portal. Cancellations inside the 24-hour window cannot be processed self-service; please contact us directly and we'll do our best to accommodate.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>How do I pay? Is it secure?</summary>
+        <p>All payments are processed securely via <strong>Stripe</strong> hosted checkout. Your card details are handled directly by Stripe — they never touch our servers. After completing a clean, you can view and pay invoices from your client portal anytime.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Do I have to be home during the cleaning?</summary>
+        <p>No. Many clients provide a key code or leave a key. Our cleaners are background-checked and insured. You can also use your client portal to track visit status in real time.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Are your cleaners background-checked?</summary>
+        <p>Yes. Every cleaner on the Maidurday team undergoes a thorough background check before their first assignment. They are also trained and insured.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Do you bring your own supplies?</summary>
+        <p>Yes. Our cleaners bring all necessary cleaning products and equipment. If you prefer eco-friendly or specific products, let us know in the booking notes.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>What areas do you serve?</summary>
+        <p>We serve northern and central New Jersey including Essex, Hudson, Bergen, Union, Middlesex, and Morris counties. See our <a href="/service-areas">Service Areas</a> page for the full list of towns.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Do you offer commercial cleaning?</summary>
+        <p>Yes, for small commercial spaces. <a href="/request-quote">Request a quote</a> with your square footage and requirements and we'll get back to you with a custom estimate.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>How do I get in touch if I have a problem?</summary>
+        <p>Email us at <a href="mailto:hello@maidurday.com">hello@maidurday.com</a>, use the <a href="/contact">contact form</a>, or call <a href="tel:+15555550123">(555) 555-0123</a> during service hours (Mon–Sat, 8am–6pm).</p>
+      </details>
+
+    </div>
+  </section>
+</main>
+
+{% include "website_footer.html" %}
+
+<style>
+  .page-hero { background: linear-gradient(135deg, #1E4F3A, #2d7a55); color: #fff; padding: 3.5rem 0; }
+  .page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .page-hero p { opacity: 0.88; }
+  .faq-list { max-width: 760px; }
+  .faq-item {
+    border: 1px solid var(--brand-line);
+    border-radius: var(--radius);
+    background: var(--brand-panel);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+  .faq-item summary {
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    list-style: none;
+    position: relative;
+    color: var(--brand-dark);
+  }
+  .faq-item summary::after { content: "+"; position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); font-size: 1.3rem; color: var(--brand-mid); }
+  .faq-item[open] summary::after { content: "−"; }
+  .faq-item p { padding: 0 1.25rem 1rem; color: var(--brand-muted); line-height: 1.7; font-size: 0.95rem; }
+</style>
+</body>
+</html>

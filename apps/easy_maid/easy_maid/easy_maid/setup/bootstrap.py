@@ -611,12 +611,9 @@ def _ensure_quotation_print_format():
         return False
 
     name = "Easy Maid Quotation"
-    if frappe.db.exists("Print Format", name):
-        return True
-
     html = """
 <div style='font-family:Arial,sans-serif;'>
-  <h2 style='margin-bottom:0;'>Easy Maid Service</h2>
+  <h2 style='margin-bottom:0;'>Maidurday Cleaning Service</h2>
   <p style='margin-top:4px;'>Quotation: {{ doc.name }}</p>
   <p>Customer: {{ doc.party_name or doc.customer_name }}</p>
   <p>Total: {{ doc.get_formatted('grand_total') }}</p>
@@ -624,6 +621,11 @@ def _ensure_quotation_print_format():
 """.strip()
 
     try:
+        if frappe.db.exists("Print Format", name):
+            pf = frappe.get_doc("Print Format", name)
+            pf.html = html
+            pf.save(ignore_permissions=True)
+            return True
         pf = frappe.get_doc(
             {
                 "doctype": "Print Format",
@@ -649,12 +651,9 @@ def _ensure_sales_invoice_print_format():
         return False
 
     name = "Easy Maid Receipt"
-    if frappe.db.exists("Print Format", name):
-        return True
-
     html = """
 <div style='font-family:Arial,sans-serif;'>
-  <h2 style='margin-bottom:0;'>Easy Maid Service</h2>
+  <h2 style='margin-bottom:0;'>Maidurday Cleaning Service</h2>
   <p style='margin-top:4px;'>Receipt: {{ doc.name }}</p>
   <p>Customer: {{ doc.customer_name or doc.customer }}</p>
   <p>Status: {{ doc.status }}</p>
@@ -664,6 +663,11 @@ def _ensure_sales_invoice_print_format():
 """.strip()
 
     try:
+        if frappe.db.exists("Print Format", name):
+            pf = frappe.get_doc("Print Format", name)
+            pf.html = html
+            pf.save(ignore_permissions=True)
+            return True
         pf = frappe.get_doc(
             {
                 "doctype": "Print Format",
@@ -745,6 +749,157 @@ def _ensure_payroll_scaffold(company_name: str):
         return False
 
 
+def _ensure_website_home_page():
+    """Set Website Settings home_page to serve www/home.html at /."""
+    try:
+        ws = frappe.get_single("Website Settings")
+        if ws.home_page != "home":
+            ws.home_page = "home"
+            ws.save(ignore_permissions=True)
+        return True
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Easy Maid: website home_page bootstrap failed")
+        return False
+
+
+def _ensure_blog_seed():
+    """Seed 5 unpublished blog draft posts in a Maidurday blog category."""
+    if not frappe.db.exists("DocType", "Blog Category"):
+        return False
+
+    try:
+        cat_name = "Cleaning Tips"
+        if not frappe.db.exists("Blog Category", {"title": cat_name}):
+            frappe.get_doc({
+                "doctype": "Blog Category",
+                "title": cat_name,
+                "route": "blog/cleaning-tips",
+                "published": 1,
+            }).insert(ignore_permissions=True)
+        cat = frappe.db.get_value("Blog Category", {"title": cat_name}, "name")
+
+        draft_posts = [
+            ("5 Signs Your Home Needs a Deep Clean", "deep-clean-signs",
+             "How to tell when a standard clean isn't enough and it's time to go deeper."),
+            ("How to Keep Your Home Clean Between Professional Visits", "keep-clean-between-visits",
+             "Simple habits that extend the results of your professional cleaning."),
+            ("Move-Out Cleaning Checklist for NJ Renters", "move-out-checklist-nj",
+             "Everything you need to cover to get your security deposit back."),
+            ("Eco-Friendly Cleaning Products That Actually Work", "eco-friendly-products",
+             "Our cleaners' favourite green products and why they use them."),
+            ("How Recurring Cleaning Saves You Money in the Long Run", "recurring-cleaning-savings",
+             "Why setting up a recurring plan is better for your wallet and your home."),
+        ]
+
+        blogger = frappe.db.get_value("Blogger", {"email": frappe.session.user}, "name")
+
+        for title, slug, intro in draft_posts:
+            if frappe.db.exists("Blog Post", {"route": f"blog/cleaning-tips/{slug}"}):
+                continue
+            post = frappe.get_doc({
+                "doctype": "Blog Post",
+                "title": title,
+                "route": f"blog/cleaning-tips/{slug}",
+                "blog_category": cat,
+                "blogger": blogger,
+                "published": 0,
+                "content": f"<p>{intro}</p><p><em>This is a draft article. Edit and publish it from the Blog Post list in the ERPNext Desk.</em></p>",
+                "meta_description": intro,
+            })
+            post.insert(ignore_permissions=True)
+        return True
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Easy Maid: blog seed bootstrap failed")
+        return False
+
+
+def _ensure_email_notifications():
+    """Seed Frappe Notification records for key cleaning-business events.
+
+    Notifications are created DISABLED so admins can review, configure the email
+    account, and enable each one. All message bodies are editable without a code
+    deploy via the Notification DocType in the Desk.
+    """
+    if not frappe.db.exists("DocType", "Notification"):
+        return False
+
+    notifications = [
+        {
+            "name": "Easy Maid Booking Confirmation",
+            "subject": "Your Booking {{ doc.name }} is Confirmed – Maidurday",
+            "message": (
+                "<p>Hi {{ doc.customer }},</p>"
+                "<p>Your cleaning booking <strong>{{ doc.name }}</strong> has been confirmed.</p>"
+                "<ul>"
+                "<li>Service: {{ doc.booking_type }}</li>"
+                "{% if doc.scheduled_date %}<li>Date: {{ doc.scheduled_date }}</li>{% endif %}"
+                "{% if doc.start_date %}<li>Starts: {{ doc.start_date }}</li>{% endif %}"
+                "<li>Address: {{ doc.service_address }}</li>"
+                "</ul>"
+                "<p>Log in to your <a href='/login'>client portal</a> to manage your bookings.</p>"
+                "<p>Thank you,<br/>Maidurday Cleaning Service</p>"
+            ),
+            "event": "New",
+            "document_type": "Booking",
+            "enabled": 0,
+        },
+        {
+            "name": "Easy Maid Invoice Issued",
+            "subject": "Invoice {{ doc.name }} from Maidurday Cleaning Service",
+            "message": (
+                "<p>Hi {{ doc.customer_name }},</p>"
+                "<p>Invoice <strong>{{ doc.name }}</strong> for ${{ doc.grand_total }} is ready.</p>"
+                "<p>Log in to your <a href='/login'>client portal</a> to view and pay your invoice securely.</p>"
+                "<p>Thank you,<br/>Maidurday Cleaning Service</p>"
+            ),
+            "event": "Submit",
+            "document_type": "Sales Invoice",
+            "enabled": 0,
+        },
+        {
+            "name": "Easy Maid Payment Receipt",
+            "subject": "Payment Received – Invoice {{ doc.name }}",
+            "message": (
+                "<p>Hi {{ doc.party }},</p>"
+                "<p>We've received your payment of ${{ doc.paid_amount }}. Thank you!</p>"
+                "<p>You can download your receipt from the <a href='/login'>client portal</a>.</p>"
+                "<p>Maidurday Cleaning Service</p>"
+            ),
+            "event": "Submit",
+            "document_type": "Payment Entry",
+            "enabled": 0,
+        },
+        {
+            "name": "Easy Maid Quote Acknowledgement",
+            "subject": "We Received Your Quote Request – Maidurday",
+            "message": (
+                "<p>Hi {{ doc.lead_name }},</p>"
+                "<p>Thanks for reaching out to Maidurday Cleaning Service! "
+                "We've received your quote request and will follow up within one business day.</p>"
+                "<p>In the meantime, you can <a href='/services'>explore our services</a> or "
+                "<a href='/pricing'>view our pricing</a>.</p>"
+                "<p>Maidurday Cleaning Service</p>"
+            ),
+            "event": "New",
+            "document_type": "Lead",
+            "condition": "doc.source == 'Website'",
+            "enabled": 0,
+        },
+    ]
+
+    created = 0
+    for n in notifications:
+        if frappe.db.exists("Notification", n["name"]):
+            continue
+        try:
+            doc = frappe.get_doc({"doctype": "Notification", **n})
+            doc.insert(ignore_permissions=True)
+            created += 1
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), f"Easy Maid: notification seed failed: {n['name']}")
+    return created
+
+
 @frappe.whitelist()
 def bootstrap_easymaid_defaults():
     """Idempotent baseline setup for Easy Maid Service ERPNext backend."""
@@ -768,6 +923,9 @@ def bootstrap_easymaid_defaults():
     quote_web_form_configured = _ensure_request_quote_web_form()
     quotation_print_format_configured = _ensure_quotation_print_format()
     sales_invoice_print_format_configured = _ensure_sales_invoice_print_format()
+    website_home_page_configured = _ensure_website_home_page()
+    blog_seeded = _ensure_blog_seed()
+    notifications_seeded = _ensure_email_notifications()
 
     frappe.db.commit()
     return {
@@ -784,6 +942,9 @@ def bootstrap_easymaid_defaults():
         "desk_workspaces_hidden": desk_workspaces_hidden,
         "quotation_print_format_configured": quotation_print_format_configured,
         "sales_invoice_print_format_configured": sales_invoice_print_format_configured,
+        "website_home_page_configured": website_home_page_configured,
+        "blog_seeded": blog_seeded,
+        "notifications_seeded": notifications_seeded,
         "employee_custom_fields": employee_custom_fields,
         "shift_types": shift_types,
         "service_items": [code for code, _, _ in SERVICE_ITEMS],

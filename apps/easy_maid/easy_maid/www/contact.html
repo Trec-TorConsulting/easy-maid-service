@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact Us | Maidurday Cleaning Service NJ</title>
+  <meta name="description" content="Contact Maidurday Cleaning Service in New Jersey. Get a free quote, ask a question, or book online." />
+  <link rel="icon" href="/assets/easy_maid/brand/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+{% include "website_styles.html" %}
+{% include "website_nav.html" %}
+
+<main>
+  <div class="page-hero">
+    <div class="wrap">
+      <h1>Contact Us</h1>
+      <p>Questions? We'd love to hear from you. Or <a href="/request-quote" style="color:var(--brand-mint);font-weight:600;">request a free quote</a> online.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap contact-layout">
+      <div class="contact-info">
+        <h2>Get in Touch</h2>
+        <div class="info-row">
+          <span class="info-icon">📞</span>
+          <div>
+            <strong>Phone</strong><br />
+            <a href="tel:+15555550123">(555) 555-0123</a>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">✉️</span>
+          <div>
+            <strong>Email</strong><br />
+            <a href="mailto:hello@maidurday.com">hello@maidurday.com</a>
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">🕐</span>
+          <div>
+            <strong>Service Hours</strong><br />
+            Monday – Saturday, 8am – 6pm
+          </div>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">📍</span>
+          <div>
+            <strong>Service Area</strong><br />
+            Northern &amp; Central New Jersey
+          </div>
+        </div>
+        <div style="margin-top:1.5rem;">
+          <a href="/service-areas" class="btn btn-outline" style="font-size:0.9rem;">View All Areas We Serve →</a>
+        </div>
+      </div>
+
+      <div class="contact-form-wrap">
+        <h2>Send a Message</h2>
+        <form id="contact-form">
+          <label for="c_name">Your name</label>
+          <input id="c_name" name="full_name" required />
+
+          <label for="c_email">Email</label>
+          <input id="c_email" type="email" name="email" required />
+
+          <label for="c_phone">Phone (optional)</label>
+          <input id="c_phone" name="phone" />
+
+          <label for="c_city">City / Town</label>
+          <input id="c_city" name="city" required />
+
+          <input name="state" type="hidden" value="NJ" />
+
+          <label for="c_details">How can we help?</label>
+          <textarea id="c_details" name="details" required style="min-height:120px;"></textarea>
+
+          <!-- honeypot -->
+          <input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" />
+
+          <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;">Send Message</button>
+          <p id="c_status" style="margin-top:0.75rem;"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include "website_footer.html" %}
+
+<style>
+  .page-hero { background: linear-gradient(135deg, #1E4F3A, #2d7a55); color: #fff; padding: 3.5rem 0; }
+  .page-hero h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .page-hero p { opacity: 0.88; }
+  .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+  .contact-info h2, .contact-form-wrap h2 { font-size: 1.4rem; color: var(--brand-dark); margin-bottom: 1.25rem; }
+  .info-row { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1.25rem; }
+  .info-icon { font-size: 1.4rem; line-height: 1; }
+  .info-row strong { display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--brand-muted); margin-bottom: 0.1rem; }
+  label { display: block; font-weight: 600; margin: 0.75rem 0 0.25rem; font-size: 0.9rem; }
+  input, textarea {
+    width: 100%;
+    border: 1px solid var(--brand-line);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font: inherit;
+    font-size: 0.95rem;
+    background: var(--brand-bg);
+  }
+  @media (max-width: 700px) {
+    .contact-layout { grid-template-columns: 1fr; gap: 2rem; }
+  }
+</style>
+
+<script>
+  document.getElementById('contact-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = document.getElementById('c_status');
+    status.textContent = 'Sending...';
+    const payload = Object.fromEntries(new FormData(e.target).entries());
+    try {
+      const res = await fetch('/api/method/easy_maid.easy_maid.api.submit_quote_request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload }),
+      });
+      const data = await res.json();
+      if (data.exc) throw new Error('Submission failed.');
+      status.textContent = 'Message received! We\'ll be in touch shortly.';
+      e.target.reset();
+    } catch {
+      status.textContent = 'Something went wrong. Please try again or email us directly.';
+    }
+  });
+</script>
+</body>
+</html>
