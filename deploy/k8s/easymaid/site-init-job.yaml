@@ -84,24 +84,13 @@ spec:
             fi
           fi
 
-          # Ensure hrms and easy_maid are registered in the shared (PVC) apps.txt.
-          for APP in hrms easy_maid; do
-            if [ -d "apps/${APP}" ]; then
-              touch sites/apps.txt
-              awk 'NF' sites/apps.txt > /tmp/apps.txt || true
-              grep -qxF "${APP}" /tmp/apps.txt 2>/dev/null || echo "${APP}" >> /tmp/apps.txt
-              mv /tmp/apps.txt sites/apps.txt
-            fi
-          done
-          echo "apps.txt: $(tr '\n' ' ' < sites/apps.txt)"
-
-          # Install hrms if available and not yet installed.
-          if [ -d "apps/hrms" ]; then
-            if bench --site "${SITE_NAME}" list-apps 2>/dev/null | grep -Eq "^hrms(\s|$)"; then
-              echo "hrms already installed on ${SITE_NAME}"
-            else
-              bench --site "${SITE_NAME}" install-app hrms
-            fi
+          # Ensure easy_maid is registered in the shared (PVC) apps.txt.
+          if [ -d "apps/easy_maid" ]; then
+            touch sites/apps.txt
+            awk 'NF' sites/apps.txt > /tmp/apps.txt || true
+            grep -qxF easy_maid /tmp/apps.txt 2>/dev/null || echo easy_maid >> /tmp/apps.txt
+            mv /tmp/apps.txt sites/apps.txt
+            echo "apps.txt: $(tr '\n' ' ' < sites/apps.txt)"
           fi
 
           if bench --site "${SITE_NAME}" list-apps | grep -qx "easy_maid"; then
