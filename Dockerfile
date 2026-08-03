@@ -40,8 +40,12 @@ RUN /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir \
 # ── Install the hrms app (Frappe HR + Payroll, separated from ERPNext v16) ────
 # Salary Component, Salary Structure, Salary Slip, Payroll Entry, Shift Type,
 # and Shift Assignment all live in frappe/hrms in ERPNext v16+.
-RUN cd /home/frappe/frappe-bench && \
-    bench get-app --branch version-16 https://github.com/frappe/hrms 2>&1
+# Use git clone + pip install (not bench get-app) to avoid the yarn/node assets
+# step which OOMs under QEMU during multi-arch cross-compilation.
+RUN cd /home/frappe/frappe-bench/apps && \
+    git clone --depth 1 --branch version-16 https://github.com/frappe/hrms && \
+    /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir \
+        -e /home/frappe/frappe-bench/apps/hrms
 
 # Register the app in apps.txt. The base image's apps.txt has no trailing
 # newline, so normalise with awk before appending to avoid concatenating onto
