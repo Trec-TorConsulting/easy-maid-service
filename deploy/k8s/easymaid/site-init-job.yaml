@@ -113,7 +113,24 @@ spec:
           # running pods that read this dir on the RWX volume during a rollout.
           echo "Materializing shared assets on PVC"
           mkdir -p sites/assets
-          cp -aL /home/frappe/frappe-bench/assets/. sites/assets/
+          # Use rsync-style cp: dereference symlinks and skip existing same-type
+          # entries rather than failing when a symlink would overwrite a dir or vice versa.
+          # find+cp per-file avoids the non-directory-overwrite-directory error.
+          find /home/frappe/frappe-bench/assets -maxdepth 1 -mindepth 1 | while read item; do
+            name=$(basename "$item")
+            if [ -L "$item" ]; then
+              # Dereference symlink: copy its target content into the dest dir
+              target=$(readlink -f "$item")
+              if [ -d "$target" ]; then
+                mkdir -p "sites/assets/$name"
+                cp -aL "$target/." "sites/assets/$name/" 2>/dev/null || true
+              else
+                cp -aL "$item" "sites/assets/$name" 2>/dev/null || true
+              fi
+            else
+              cp -aL "$item" "sites/assets/" 2>/dev/null || true
+            fi
+          done
 
           # bench build does not place the custom app's link in the bench-level
           # assets dir, so copy easy_maid's public dir explicitly. This is what

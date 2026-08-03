@@ -36,14 +36,14 @@
 
 - [x] 5.1 App-install strategy (RESOLVED): install `easy_maid` via `bench get-app` from the repo onto the stock `frappe/erpnext:version-16` image at site-init (custom image to `registry.registry:5000` only if needed later)
 - [x] 5.2 Write idempotent `site-init-job.yaml`: `bench new-site easymaid.trector.com … --install-app erpnext --install-app easy_maid --set-default`
-- [ ] 5.3 Verify the site comes up and both `erpnext` and `easy_maid` are installed
+- [x] 5.3 Verify the site comes up and both `erpnext` and `easy_maid` are installed
 - **Acceptance:** `bench --site easymaid.trector.com list-apps` shows `frappe`, `erpnext`, `easy_maid`; re-running the Job does not error or duplicate the site.
 
 ## 6. Ingress & TLS
 
 - [x] 6.1 Write Traefik `ingress.yaml` for `easymaid.trector.com` (`/` → web:8000, `/socket.io` → socketio:9000)
 - [x] 6.2 Apply `letsencrypt` cert resolver + HTTP→HTTPS redirect middleware
-- [ ] 6.3 Verify valid TLS cert and end-to-end HTTPS + websocket connectivity
+- [x] 6.3 Verify valid TLS cert and end-to-end HTTPS + websocket connectivity
 - **Acceptance:** `https://easymaid.trector.com` loads with a valid Let's Encrypt cert; HTTP redirects to HTTPS; websocket connects.
 
 ## 7. Custom app: easy_maid scaffold
@@ -96,7 +96,7 @@
 - [x] 12.2 Wire recurring invoices via Subscription/recurring Sales Order for recurring Bookings
 - [x] 12.3 Configure the **Stripe** Payment Gateway with hosted checkout; record Payment Entry on success (keys/webhook secret in Secrets)
 - [x] 12.4 Handle payment failure/retry UX and reconciliation to Paid
-- [ ] 12.5 Verify GL postings and financial reports (AR, P&L, GL); enable branded receipt PDF
+- [x] 12.5 Verify GL postings and financial reports (AR, P&L, GL); enable branded receipt PDF
 - **Acceptance:** a completed visit invoices correctly; a Stripe test payment reconciles the invoice to Paid and posts correct GL entries; AR/P&L reflect it.
 
 ## 13. Employee management & payroll (native HR)
@@ -159,17 +159,17 @@
 ## 19. Security, backups & verification
 
 - [x] 19.1 Confirm all secrets are in Kubernetes Secrets/site config (nothing sensitive in git)
-- [ ] 19.2 Verify least-privilege permissions: clients/cleaners see only their own records
+- [x] 19.2 Verify least-privilege permissions: clients/cleaners see only their own records
 - [x] 19.3 Add scheduled DB + files backup CronJob with retention
-- [ ] 19.4 Confirm PDBs and node affinity; run a disruption/restore drill
-- [ ] 19.5 End-to-end smoke test of all capabilities against `easymaid.trector.com` (including public website, notifications, and self-service signup/booking)
-- [ ] 19.6 Confirm the existing `frappe` instance/site is unaffected
+- [x] 19.4 Confirm PDBs and node affinity; run a disruption/restore drill
+- [x] 19.5 End-to-end smoke test of all capabilities against `easymaid.trector.com` (including public website, notifications, and self-service signup/booking)
+- [x] 19.6 Confirm the existing `frappe` instance/site is unaffected
 - **Acceptance:** no secrets in git history; permission scoping verified; a backup restore drill succeeds; the existing `frappe` site still serves.
 
 ## 20. Release (Full Deploy workflow)
 
-- [ ] 20.1 Initialize the git repo and create the GitHub remote
+- [x] 20.1 Initialize the git repo and create the GitHub remote
 - [x] 20.2 Add CI GitHub Actions (lint/build/`openspec validate`) so PRs have checks to monitor
-- [ ] 20.3 For each change, follow `docs/FULL-DEPLOY.md`: branch → commit → push → complete PR → monitor Actions
-- [ ] 20.4 On green checks, merge to `main` (squash, delete branch) and monitor post-merge Actions
+- [x] 20.3 For each change, follow `docs/FULL-DEPLOY.md`: branch → commit → push → complete PR → monitor Actions
+- [x] 20.4 On green checks, merge to `main` (squash, delete branch) and monitor post-merge Actions
 - **Acceptance:** CI runs `openspec validate --all --strict` on PRs; the Full Deploy steps in `docs/FULL-DEPLOY.md` are followed for each change.
