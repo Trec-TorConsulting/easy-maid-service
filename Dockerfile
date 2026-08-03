@@ -37,15 +37,20 @@ COPY apps/easy_maid/README.md \
 RUN /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir \
     -e /home/frappe/frappe-bench/apps/easy_maid
 
-# NOTE: The frappe/hrms app (Salary, Shift, Payroll DocTypes) requires a separate
-# database pre-migration procedure on existing sites due to stale Expense Claim Type
-# module metadata from the ERPNext v15->v16 split. Install hrms separately after
-# running the fix described in docs/HRMS-INSTALL.md.
+# ── Install the hrms app (Frappe HR + Payroll, separated from ERPNext v16) ────
+# Salary Component, Salary Structure, Salary Slip, Payroll Entry, Shift Type,
+# and Shift Assignment all live in frappe/hrms in ERPNext v16+.
+# Use git clone + pip install to avoid the yarn/node OOM under QEMU buildx.
+RUN cd /home/frappe/frappe-bench/apps && \
+    git clone --depth 1 --branch version-16 https://github.com/frappe/hrms && \
+    /home/frappe/frappe-bench/env/bin/pip install --no-cache-dir \
+        -e /home/frappe/frappe-bench/apps/hrms
 
 # Register the app in apps.txt. The base image's apps.txt has no trailing
 # newline, so normalise with awk before appending to avoid concatenating onto
 # the last entry (e.g. "erpnecteasy_maid").
 RUN awk 'NF' /home/frappe/frappe-bench/sites/apps.txt > /tmp/apps.txt && \
+    (grep -qxF 'hrms' /tmp/apps.txt || echo 'hrms' >> /tmp/apps.txt) && \
     (grep -qxF 'easy_maid' /tmp/apps.txt || echo 'easy_maid' >> /tmp/apps.txt) && \
     mv /tmp/apps.txt /home/frappe/frappe-bench/sites/apps.txt && \
     echo "── apps.txt ──" && cat /home/frappe/frappe-bench/sites/apps.txt
@@ -82,4 +87,4 @@ LABEL org.opencontainers.image.title="Easy Maid Service Bench"
 LABEL org.opencontainers.image.description="Frappe/ERPNext bench with the easy_maid app"
 LABEL org.opencontainers.image.vendor="Trec-Tor Consulting"
 LABEL org.opencontainers.image.source="https://github.com/Trec-TorConsulting/easy-maid-service"
-LABEL org.opencontainers.image.version="0.1.1"
+LABEL org.opencontainers.image.version="0.1.2"
