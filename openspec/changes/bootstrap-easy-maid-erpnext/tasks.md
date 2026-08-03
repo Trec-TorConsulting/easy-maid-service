@@ -103,8 +103,8 @@
 
 - [x] 13.1 Configure Employee records with cleaning attributes (skills/certifications, service area)
 - [x] 13.2 Configure shifts/availability used during dispatch
-- [ ] 13.3 Configure salary structures and run a test payroll (Salary Slips + accounting entries)
-- [ ] 13.4 Verify cleaners cannot view others' payroll data
+- [x] 13.3 Configure salary structures and run a test payroll (Salary Slips + accounting entries)
+- [x] 13.4 Verify cleaners cannot view others' payroll data
 - **Acceptance:** a test payroll run produces Salary Slips + accounting entries; a cleaner cannot see another employee's pay.
 
 ## 14. Unified frontend (Frappe UI / Vue)

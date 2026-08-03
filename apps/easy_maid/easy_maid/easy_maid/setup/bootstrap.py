@@ -742,6 +742,8 @@ def _ensure_payroll_scaffold(company_name: str):
                 }
             )
             structure.insert(ignore_permissions=True)
+            # Salary Structure must be submitted to be used for Salary Slips
+            structure.submit()
 
         return True
     except Exception:
