@@ -402,83 +402,153 @@ def _ensure_navbar_branding():
         return False
 
 
-def _ensure_easy_maid_workspace():
-    """Create a public Maidurday workspace to land on in the Desk."""
+def _ensure_easy_maid_workspaces():
+    """Create role-specific workspaces: Owner, Cleaner, Client."""
     if not frappe.db.exists("DocType", "Workspace"):
         return False
     try:
         import json as _json
 
-        title = "Maidurday"
-        # Remove any legacy Easy Maid workspace so Maidurday is the sole landing page.
-        if title != "Easy Maid" and frappe.db.exists("Workspace", "Easy Maid"):
-            frappe.delete_doc("Workspace", "Easy Maid", ignore_permissions=True, force=1)
-        shortcuts = [
-            {"type": "DocType", "link_to": "Booking", "label": "Bookings", "color": "Green"},
-            {"type": "DocType", "link_to": "Service Visit", "label": "Service Visits", "color": "Blue"},
-            {"type": "DocType", "link_to": "Crew Assignment", "label": "Crew Assignments", "color": "Orange"},
-            {"type": "DocType", "link_to": "Customer", "label": "Customers", "color": "Grey"},
-        ]
-        links = [
-            {"type": "Card Break", "label": "Operations"},
-            {"type": "Link", "label": "Booking", "link_type": "DocType", "link_to": "Booking"},
-            {"type": "Link", "label": "Service Visit", "link_type": "DocType", "link_to": "Service Visit"},
-            {"type": "Link", "label": "Crew Assignment", "link_type": "DocType", "link_to": "Crew Assignment"},
-            {"type": "Card Break", "label": "Sales"},
-            {"type": "Link", "label": "Quotation", "link_type": "DocType", "link_to": "Quotation"},
-            {"type": "Link", "label": "Sales Order", "link_type": "DocType", "link_to": "Sales Order"},
-            {"type": "Link", "label": "Customer", "link_type": "DocType", "link_to": "Customer"},
-            {"type": "Card Break", "label": "Billing"},
-            {"type": "Link", "label": "Sales Invoice", "link_type": "DocType", "link_to": "Sales Invoice"},
-            {"type": "Link", "label": "Payment Entry", "link_type": "DocType", "link_to": "Payment Entry"},
-            {"type": "Card Break", "label": "Team"},
-            {"type": "Link", "label": "Employee", "link_type": "DocType", "link_to": "Employee"},
-        ]
-        content = _json.dumps(
-            [
-                {"id": "em_header", "type": "header", "data": {"text": "<span class=\"h4\"><b>Maidurday</b></span>", "col": 12}},
-                {"id": "em_sc_book", "type": "shortcut", "data": {"shortcut_name": "Bookings", "col": 3}},
-                {"id": "em_sc_visit", "type": "shortcut", "data": {"shortcut_name": "Service Visits", "col": 3}},
-                {"id": "em_sc_crew", "type": "shortcut", "data": {"shortcut_name": "Crew Assignments", "col": 3}},
-                {"id": "em_sc_cust", "type": "shortcut", "data": {"shortcut_name": "Customers", "col": 3}},
-                {"id": "em_card_ops", "type": "card", "data": {"card_name": "Operations", "col": 4}},
-                {"id": "em_card_sales", "type": "card", "data": {"card_name": "Sales", "col": 4}},
-                {"id": "em_card_bill", "type": "card", "data": {"card_name": "Billing", "col": 4}},
-                {"id": "em_card_team", "type": "card", "data": {"card_name": "Team", "col": 4}},
-            ]
+        # Delete legacy "Maidurday" (public) workspace if it exists
+        if frappe.db.exists("Workspace", "Maidurday"):
+            frappe.delete_doc("Workspace", "Maidurday", ignore_permissions=True, force=1)
+
+        # --- OWNER WORKSPACE ---
+        owner_workspace = _create_or_update_workspace(
+            title="Maidurday Owner",
+            shortcuts=[
+                {"type": "DocType", "link_to": "Booking", "label": "Bookings", "color": "Green"},
+                {"type": "DocType", "link_to": "Service Visit", "label": "Service Visits", "color": "Blue"},
+                {"type": "DocType", "link_to": "Crew Assignment", "label": "Crew Assignments", "color": "Orange"},
+                {"type": "DocType", "link_to": "Customer", "label": "Customers", "color": "Grey"},
+            ],
+            links=[
+                {"type": "Card Break", "label": "Operations"},
+                {"type": "Link", "label": "Booking", "link_type": "DocType", "link_to": "Booking"},
+                {"type": "Link", "label": "Service Visit", "link_type": "DocType", "link_to": "Service Visit"},
+                {"type": "Link", "label": "Crew Assignment", "link_type": "DocType", "link_to": "Crew Assignment"},
+                {"type": "Card Break", "label": "Sales"},
+                {"type": "Link", "label": "Quotation", "link_type": "DocType", "link_to": "Quotation"},
+                {"type": "Link", "label": "Sales Order", "link_type": "DocType", "link_to": "Sales Order"},
+                {"type": "Link", "label": "Customer", "link_type": "DocType", "link_to": "Customer"},
+                {"type": "Card Break", "label": "Billing"},
+                {"type": "Link", "label": "Sales Invoice", "link_type": "DocType", "link_to": "Sales Invoice"},
+                {"type": "Link", "label": "Payment Entry", "link_type": "DocType", "link_to": "Payment Entry"},
+                {"type": "Card Break", "label": "Team"},
+                {"type": "Link", "label": "Employee", "link_type": "DocType", "link_to": "Employee"},
+            ],
+            content_layout=[
+                {"id": "owner_header", "type": "header", "data": {"text": "<span class=\"h4\"><b>Owner Dashboard</b></span>", "col": 12}},
+                {"id": "owner_sc_book", "type": "shortcut", "data": {"shortcut_name": "Bookings", "col": 3}},
+                {"id": "owner_sc_visit", "type": "shortcut", "data": {"shortcut_name": "Service Visits", "col": 3}},
+                {"id": "owner_sc_crew", "type": "shortcut", "data": {"shortcut_name": "Crew Assignments", "col": 3}},
+                {"id": "owner_sc_cust", "type": "shortcut", "data": {"shortcut_name": "Customers", "col": 3}},
+                {"id": "owner_card_ops", "type": "card", "data": {"card_name": "Operations", "col": 4}},
+                {"id": "owner_card_sales", "type": "card", "data": {"card_name": "Sales", "col": 4}},
+                {"id": "owner_card_bill", "type": "card", "data": {"card_name": "Billing", "col": 4}},
+                {"id": "owner_card_team", "type": "card", "data": {"card_name": "Team", "col": 4}},
+            ],
         )
-        values = {
-            "title": title,
-            "label": title,
-            "public": 1,
-            "is_hidden": 0,
-            "icon": "tool",
-            "module": "Easy Maid",
-            "sequence_id": 1.0,
-            "content": content,
-        }
-        if frappe.db.exists("Workspace", title):
-            workspace = frappe.get_doc("Workspace", title)
-            workspace.set("shortcuts", [])
-            workspace.set("links", [])
-            workspace.update(values)
-        else:
-            workspace = frappe.get_doc({"doctype": "Workspace", **values})
-        for shortcut in shortcuts:
-            workspace.append("shortcuts", shortcut)
-        for link in links:
-            workspace.append("links", link)
-        workspace.save(ignore_permissions=True)
-        return True
+
+        # --- CLEANER WORKSPACE ---
+        cleaner_workspace = _create_or_update_workspace(
+            title="Maidurday Cleaner",
+            shortcuts=[
+                {"type": "DocType", "link_to": "Service Visit", "label": "My Visits", "color": "Blue"},
+                {"type": "DocType", "link_to": "Crew Assignment", "label": "My Assignments", "color": "Orange"},
+                {"type": "DocType", "link_to": "Employee", "label": "My Profile", "color": "Grey"},
+                {"type": "DocType", "link_to": "Leave Application", "label": "Time Off", "color": "Red"},
+            ],
+            links=[
+                {"type": "Card Break", "label": "Schedule"},
+                {"type": "Link", "label": "Service Visit", "link_type": "DocType", "link_to": "Service Visit"},
+                {"type": "Link", "label": "Crew Assignment", "link_type": "DocType", "link_to": "Crew Assignment"},
+                {"type": "Card Break", "label": "Personal"},
+                {"type": "Link", "label": "Employee", "link_type": "DocType", "link_to": "Employee"},
+                {"type": "Link", "label": "Leave Application", "link_type": "DocType", "link_to": "Leave Application"},
+            ],
+            content_layout=[
+                {"id": "cleaner_header", "type": "header", "data": {"text": "<span class=\"h4\"><b>Cleaner Hub</b></span>", "col": 12}},
+                {"id": "cleaner_sc_visit", "type": "shortcut", "data": {"shortcut_name": "My Visits", "col": 3}},
+                {"id": "cleaner_sc_crew", "type": "shortcut", "data": {"shortcut_name": "My Assignments", "col": 3}},
+                {"id": "cleaner_sc_emp", "type": "shortcut", "data": {"shortcut_name": "My Profile", "col": 3}},
+                {"id": "cleaner_sc_leave", "type": "shortcut", "data": {"shortcut_name": "Time Off", "col": 3}},
+                {"id": "cleaner_card_sched", "type": "card", "data": {"card_name": "Schedule", "col": 6}},
+                {"id": "cleaner_card_personal", "type": "card", "data": {"card_name": "Personal", "col": 6}},
+            ],
+        )
+
+        # --- CLIENT WORKSPACE ---
+        client_workspace = _create_or_update_workspace(
+            title="Maidurday Client",
+            shortcuts=[
+                {"type": "DocType", "link_to": "Booking", "label": "My Bookings", "color": "Green"},
+                {"type": "DocType", "link_to": "Quotation", "label": "Quotes", "color": "Blue"},
+                {"type": "DocType", "link_to": "Sales Order", "label": "Orders", "color": "Orange"},
+                {"type": "DocType", "link_to": "Payment Entry", "label": "Payments", "color": "Grey"},
+            ],
+            links=[
+                {"type": "Card Break", "label": "Services"},
+                {"type": "Link", "label": "Booking", "link_type": "DocType", "link_to": "Booking"},
+                {"type": "Link", "label": "Quotation", "link_type": "DocType", "link_to": "Quotation"},
+                {"type": "Card Break", "label": "Orders & Payments"},
+                {"type": "Link", "label": "Sales Order", "link_type": "DocType", "link_to": "Sales Order"},
+                {"type": "Link", "label": "Payment Entry", "link_type": "DocType", "link_to": "Payment Entry"},
+            ],
+            content_layout=[
+                {"id": "client_header", "type": "header", "data": {"text": "<span class=\"h4\"><b>My Services</b></span>", "col": 12}},
+                {"id": "client_sc_book", "type": "shortcut", "data": {"shortcut_name": "My Bookings", "col": 3}},
+                {"id": "client_sc_quote", "type": "shortcut", "data": {"shortcut_name": "Quotes", "col": 3}},
+                {"id": "client_sc_order", "type": "shortcut", "data": {"shortcut_name": "Orders", "col": 3}},
+                {"id": "client_sc_pay", "type": "shortcut", "data": {"shortcut_name": "Payments", "col": 3}},
+                {"id": "client_card_svc", "type": "card", "data": {"card_name": "Services", "col": 6}},
+                {"id": "client_card_ord", "type": "card", "data": {"card_name": "Orders & Payments", "col": 6}},
+            ],
+        )
+
+        return bool(owner_workspace and cleaner_workspace and client_workspace)
     except Exception:
-        frappe.log_error(frappe.get_traceback(), "Easy Maid: workspace bootstrap failed")
+        frappe.log_error(frappe.get_traceback(), "Easy Maid: role-specific workspaces bootstrap failed")
         return False
 
 
-# Public workspaces that stay visible in the Desk. Everything else that ships
-# with Frappe/ERPNext (Buying, Manufacturing, Stock, Assets, Quality, CRM, ...)
+def _create_or_update_workspace(title: str, shortcuts: list, links: list, content_layout: list):
+    """Helper to create or update a workspace with given content."""
+    import json as _json
+
+    content = _json.dumps(content_layout)
+    values = {
+        "title": title,
+        "label": title,
+        "public": 0,
+        "is_hidden": 0,
+        "icon": "tool",
+        "module": "Easy Maid",
+        "sequence_id": 1.0,
+        "content": content,
+    }
+
+    if frappe.db.exists("Workspace", title):
+        workspace = frappe.get_doc("Workspace", title)
+        workspace.set("shortcuts", [])
+        workspace.set("links", [])
+        workspace.update(values)
+    else:
+        workspace = frappe.get_doc({"doctype": "Workspace", **values})
+
+    for shortcut in shortcuts:
+        workspace.append("shortcuts", shortcut)
+    for link in links:
+        workspace.append("links", link)
+
+    workspace.save(ignore_permissions=True)
+    return workspace
+
+
+# Workspaces that stay visible in the Desk (role-specific, not hidden).
+# Everything else that ships with Frappe/ERPNext (Buying, Manufacturing, Stock, Assets, Quality, CRM, ...)
 # is irrelevant to a cleaning business and is hidden so the Desk stays focused.
-DESK_KEEP_WORKSPACES = {"Maidurday"}
+DESK_KEEP_WORKSPACES = {"Maidurday Owner", "Maidurday Cleaner", "Maidurday Client"}
 
 
 def _ensure_desk_declutter():
@@ -917,7 +987,7 @@ def bootstrap_easymaid_defaults():
     _ensure_nj_tax_template(company.name)
     _ensure_branding(company.name)
     navbar_branding_configured = _ensure_navbar_branding()
-    easy_maid_workspace_configured = _ensure_easy_maid_workspace()
+    easy_maid_workspace_configured = _ensure_easy_maid_workspaces()
     desk_workspaces_hidden = _ensure_desk_declutter()
     letter_head_configured = _ensure_letter_head(company.name)
     payroll_scaffold_configured = _ensure_payroll_scaffold(company.name)
@@ -963,7 +1033,7 @@ def reapply_desk_customizations():
     Desk stays branded and focused on the maid service after every deploy.
     """
     navbar = _ensure_navbar_branding()
-    workspace = _ensure_easy_maid_workspace()
+    workspace = _ensure_easy_maid_workspaces()
     hidden = _ensure_desk_declutter()
     frappe.db.commit()
     return {
