@@ -26,10 +26,14 @@ metadata:
     app.kubernetes.io/component: backups
 spec:
   schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 1800
+      ttlSecondsAfterFinished: 604800
       template:
         spec:
           restartPolicy: OnFailure
@@ -87,10 +91,14 @@ metadata:
     app.kubernetes.io/component: backups
 spec:
   schedule: "30 3 * * *"
+  concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 1800
+      ttlSecondsAfterFinished: 604800
       template:
         spec:
           restartPolicy: OnFailure
@@ -105,8 +113,11 @@ spec:
                     - node05
                     - node06
           containers:
+          # busybox: tars the sites PVC. Do not use frappe/erpnext — kustomize
+          # rewrites that image to the HTTP cluster registry, which new nodes
+          # cannot pull (HTTPS client vs HTTP registry).
           - name: sites-backup
-            image: frappe/erpnext:version-16
+            image: busybox:1.36
             imagePullPolicy: IfNotPresent
             command:
             - /bin/sh
