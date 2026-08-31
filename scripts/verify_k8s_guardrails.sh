@@ -8,6 +8,20 @@ else
 fi
 
 fail=0
+SEARCH="rg"
+if ! command -v rg >/dev/null 2>&1; then
+  SEARCH="grep"
+fi
+
+search() {
+  local pattern="$1"
+  local path="$2"
+  if [[ "$SEARCH" == "rg" ]]; then
+    rg -n "$pattern" "$path"
+  else
+    grep -R -n -E "$pattern" "$path"
+  fi
+}
 
 echo "== K8s guardrail checks =="
 
@@ -21,7 +35,7 @@ for ROOT in "${ROOTS[@]}"; do
   echo "-- Checking $ROOT"
 
   # 1) Isolation: no frappe namespace references
-  if rg -n "namespace:\s*frappe" "$ROOT" >/tmp/easymaid_k8s_guardrails.tmp 2>/dev/null; then
+  if search "namespace:[[:space:]]*frappe" "$ROOT" >/tmp/easymaid_k8s_guardrails.tmp 2>/dev/null; then
     echo "FAIL: found forbidden frappe namespace references"
     cat /tmp/easymaid_k8s_guardrails.tmp
     fail=1
@@ -30,7 +44,7 @@ for ROOT in "${ROOTS[@]}"; do
   fi
 
   # 2) Node exclusion patterns present
-  if rg -n "node05|node06" "$ROOT" >/tmp/easymaid_k8s_guardrails.tmp 2>/dev/null; then
+  if search "node05|node06" "$ROOT" >/tmp/easymaid_k8s_guardrails.tmp 2>/dev/null; then
     echo "PASS: node05/node06 exclusion markers present"
   else
     echo "FAIL: node05/node06 exclusion markers missing"
@@ -38,7 +52,7 @@ for ROOT in "${ROOTS[@]}"; do
   fi
 
   # 3) PDB resources present
-  if rg -n "kind:\s*PodDisruptionBudget" "$ROOT" >/tmp/easymaid_k8s_guardrails.tmp 2>/dev/null; then
+  if search "kind:[[:space:]]*PodDisruptionBudget" "$ROOT" >/tmp/easymaid_k8s_guardrails.tmp 2>/dev/null; then
     echo "PASS: PodDisruptionBudget resources present"
   else
     echo "FAIL: PodDisruptionBudget resources missing"
